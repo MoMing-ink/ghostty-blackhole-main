@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
         idleSec = atoi(argv[2]);
         if (idleSec < 10) idleSec = 10;
     }
-    // Capture mode: "wgc" or "dxgi" (default: dxgi 鈥?more stable)
+    // Capture mode: "wgc" or "dxgi" (default: dxgi 闂?more stable)
     bool useWGC = false;
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -434,7 +434,19 @@ int main(int argc, char* argv[]) {
         glViewport(0, 0, fbW, fbH);
 
         // ---- Capture -> upload (WGC or DXGI) ----
+        // DXGI pattern: Release previous frame BEFORE acquiring next
+        static bool dxgiHasFrame = false;
+        if (!useWGC && dxgiHasFrame) { DXGI_ReleaseFrame(dxgi); dxgiHasFrame = false; }
         ID3D11Texture2D* frame = useWGC ? WGC_GetFrame(wgc) : DXGI_GetFrame(dxgi);
+        if (!useWGC && frame) dxgiHasFrame = true;
+        static int dxgiOk = 0, dxgiMiss = 0;
+        if (!useWGC) {
+            if (frame) { dxgiOk++; }
+            else { dxgiMiss++; }
+            if ((dxgiOk + dxgiMiss) % 120 == 0)
+                fprintf(stderr, "[DXGI] %d ok, %d miss\n", dxgiOk, dxgiMiss);
+        }
+        
         if (frame) {
             // Micro-delay: let GPU compositor finish large screen updates
             D3D11_TEXTURE2D_DESC desc;
@@ -448,13 +460,13 @@ int main(int argc, char* argv[]) {
             // Copy to staging only if sizes match
             if (fw == glTex.width && fh == glTex.height) {
                 D3D11_MAPPED_SUBRESOURCE mapped;
-                if (WGC_CopyToStaging(wgc, frame, mapped)) {
+                if ((useWGC ? WGC_CopyToStaging(wgc, frame, mapped) : DXGI_CopyToStaging(dxgi, frame, mapped))) {
                     GLTex_Upload(glTex, mapped.pData, (int)mapped.RowPitch);
-                    WGC_UnmapStaging(wgc);
+                    if (useWGC) WGC_UnmapStaging(wgc);
+                    else        DXGI_UnmapStaging(dxgi);
                 }
             }
             frame->Release();
-            if (!useWGC) DXGI_ReleaseFrame(dxgi);
         }
 
         // Update uniforms

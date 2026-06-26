@@ -1,5 +1,5 @@
 // gl_texture.cpp  Synchronous D3D11-staging -> OpenGL texture upload
-// No PBO, no async DMA 鈥?simple, reliable glTexSubImage2D.
+// No PBO, no async DMA 閳?simple, reliable glTexSubImage2D.
 #include "gl_texture.h"
 #include <cstdio>
 #include <cstring>
@@ -12,8 +12,8 @@
 #ifndef GL_BGRA_EXT
 #define GL_BGRA_EXT             0x80E1
 #endif
-#ifndef GL_RGBA8
-#define GL_RGBA8                0x8058
+#ifndef GL_RGBA
+#define GL_RGBA                0x8058
 #endif
 
 // ---- Public API ----
@@ -30,7 +30,7 @@ bool GLTex_Init(GLTextureUpload& gt, int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
                  GL_BGRA_EXT, GL_UNSIGNED_BYTE, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
