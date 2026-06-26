@@ -19,6 +19,7 @@
 
 #include "capture_wgc.h"
 #include "capture_dxgi.h"
+#include "gui_config.h"
 #include "gl_texture.h"
 
 #define GLFW_INCLUDE_NONE
@@ -246,11 +247,22 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "Blackhole: mode=%s idle=%ds\n",
         bhMode == MODE_IDLE ? "idle" : "always", idleSec);
 
-    // Init GLFW
+    // Init GLFW (shared between config panel and main window)
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
         return 1;
     }
+
+    // ---- Config Panel ----
+    BlackholeConfig cfg;
+    if (!GUI_ShowConfigPanel(cfg)) {
+        glfwTerminate();
+        return 0;  // user cancelled
+    }
+    // Use config values
+    if (cfg.mode == 0)      bhMode = MODE_ALWAYS;
+    else if (cfg.mode == 1) bhMode = MODE_IDLE;
+    idleSec = cfg.idleSec;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);

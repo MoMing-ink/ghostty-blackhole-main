@@ -15,6 +15,14 @@
                 "${workspaceFolder}/src/capture_wgc.cpp",
                 "${workspaceFolder}/src/capture_dxgi.cpp",
                 "${workspaceFolder}/src/gl_texture.cpp",
+                "${workspaceFolder}/src/gui_config.cpp",
+                "${workspaceFolder}/src/imgui/imgui.cpp",
+                "${workspaceFolder}/src/imgui/imgui_draw.cpp",
+                "${workspaceFolder}/src/imgui/imgui_widgets.cpp",
+                "${workspaceFolder}/src/imgui/imgui_tables.cpp",
+                "${workspaceFolder}/src/imgui/imgui_impl_glfw.cpp",
+                "${workspaceFolder}/src/imgui/imgui_impl_opengl3.cpp",
+                "-Isrc/imgui",
                 "-IC:/msys64/ucrt64/include",
                 "-LC:/msys64/ucrt64/lib",
                 "-lglfw3",
@@ -27,24 +35,14 @@
                 "-lcomctl32",
                 "-mwindows"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            },
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "new" },
             "problemMatcher": {
                 "owner": "cpp",
                 "fileLocation": "absolute",
                 "pattern": {
                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3,
-                    "severity": 4,
-                    "message": 5
+                    "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
                 }
             }
         },
@@ -61,6 +59,14 @@
                 "${workspaceFolder}/src/capture_wgc.cpp",
                 "${workspaceFolder}/src/capture_dxgi.cpp",
                 "${workspaceFolder}/src/gl_texture.cpp",
+                "${workspaceFolder}/src/gui_config.cpp",
+                "${workspaceFolder}/src/imgui/imgui.cpp",
+                "${workspaceFolder}/src/imgui/imgui_draw.cpp",
+                "${workspaceFolder}/src/imgui/imgui_widgets.cpp",
+                "${workspaceFolder}/src/imgui/imgui_tables.cpp",
+                "${workspaceFolder}/src/imgui/imgui_impl_glfw.cpp",
+                "${workspaceFolder}/src/imgui/imgui_impl_opengl3.cpp",
+                "-Isrc/imgui",
                 "-IC:/msys64/ucrt64/include",
                 "-LC:/msys64/ucrt64/lib",
                 "-lglfw3",
@@ -74,19 +80,13 @@
                 "-mwindows"
             ],
             "group": "none",
-            "presentation": {
-                "reveal": "silent"
-            },
+            "presentation": { "reveal": "silent" },
             "problemMatcher": {
                 "owner": "cpp",
                 "fileLocation": "absolute",
                 "pattern": {
                     "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-                    "file": 1,
-                    "line": 2,
-                    "column": 3,
-                    "severity": 4,
-                    "message": 5
+                    "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
                 }
             }
         },
@@ -94,27 +94,8 @@
             "label": "Run Always",
             "type": "shell",
             "command": "${workspaceFolder}/build/blackhole.exe",
-            "args": [
-                "always"
-            ],
             "group": "none",
-            "presentation": {
-                "reveal": "never"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Run Idle (5min)",
-            "type": "shell",
-            "command": "${workspaceFolder}/build/blackhole.exe",
-            "args": [
-                "idle",
-                "300"
-            ],
-            "group": "none",
-            "presentation": {
-                "reveal": "never"
-            },
+            "presentation": { "reveal": "never" },
             "problemMatcher": []
         },
         {

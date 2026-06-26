@@ -16,6 +16,13 @@ add_executable(blackhole
     src/main.cpp
     src/capture_wgc.cpp
     src/capture_dxgi.cpp
+    src/gui_config.cpp
+    src/imgui/imgui.cpp
+    src/imgui/imgui_draw.cpp
+    src/imgui/imgui_widgets.cpp
+    src/imgui/imgui_tables.cpp
+    src/imgui/imgui_impl_glfw.cpp
+    src/imgui/imgui_impl_opengl3.cpp
     src/gl_texture.cpp
 )
 
