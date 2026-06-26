@@ -1,110 +1,100 @@
-# Debug State — Blackhole v4: WGC + PBO 架构迁移
+# Debug State 鈥?Blackhole v4: WGC + PBO 鏋舵瀯杩佺Щ
 
-## 实施结果
+## 瀹炴柦缁撴灉
 
-### 编译 ✅
-- 零警告零错误通过
-- 3 源文件链接: main.cpp + capture_wgc.cpp + gl_texture.cpp
-- 依赖库: glfw + opengl32 + d3d11 + dxgi + gdi32 + runtimeobject
+### 缂栬瘧 鉁?- 闆惰鍛婇浂閿欒閫氳繃
+- 3 婧愭枃浠堕摼鎺? main.cpp + capture_wgc.cpp + gl_texture.cpp
+- 渚濊禆搴? glfw + opengl32 + d3d11 + dxgi + gdi32 + runtimeobject
 
-### 架构变更
+### 鏋舵瀯鍙樻洿
 
-**旧架构 (v3) — 已删除：**
+**鏃ф灦鏋?(v3) 鈥?宸插垹闄わ細**
 ```
 DXGI Desktop Duplication (screen_capture)
-    → AcquireNextFrame / ReleaseFrame
-    → CopyResource → shared D3D11 texture
-    → WGL_NV_DX_interop2 (NVIDIA only) → OpenGL texture
-    → blackhole.glsl → 窗口
+    鈫?AcquireNextFrame / ReleaseFrame
+    鈫?CopyResource 鈫?shared D3D11 texture
+    鈫?WGL_NV_DX_interop2 (NVIDIA only) 鈫?OpenGL texture
+    鈫?blackhole.glsl 鈫?绐楀彛
 ```
-- `src/screen_capture.h` / `.cpp` — 已删除
-- `src/gl_interop.h` / `.cpp` — 已删除
-- SPIR-V 编译路径 — 已删除，只保留 GLSL
+- `src/screen_capture.h` / `.cpp` 鈥?宸插垹闄?- `src/gl_interop.h` / `.cpp` 鈥?宸插垹闄?- SPIR-V 缂栬瘧璺緞 鈥?宸插垹闄わ紝鍙繚鐣?GLSL
 
-**新架构 (v4) — 跨 GPU：**
+**鏂版灦鏋?(v4) 鈥?璺?GPU锛?*
 ```
 Windows Graphics Capture (capture_wgc)
-    → TryGetNextFrame → ID3D11Texture2D
-    → CopyResource → staging texture (D3D11_USAGE_STAGING)
-    → Map → memcpy → PBO → glTexSubImage2D
-    → OpenGL texture → blackhole.glsl → 窗口
+    鈫?TryGetNextFrame 鈫?ID3D11Texture2D
+    鈫?CopyResource 鈫?staging texture (D3D11_USAGE_STAGING)
+    鈫?Map 鈫?memcpy 鈫?PBO 鈫?glTexSubImage2D
+    鈫?OpenGL texture 鈫?blackhole.glsl 鈫?绐楀彛
 ```
-- `src/capture_wgc.h` / `.cpp` — 新建：WGC 捕获模块
-- `src/gl_texture.h` / `.cpp` — 新建：PBO 异步上传模块
+- `src/capture_wgc.h` / `.cpp` 鈥?鏂板缓锛歐GC 鎹曡幏妯″潡
+- `src/gl_texture.h` / `.cpp` 鈥?鏂板缓锛歅BO 寮傛涓婁紶妯″潡
 
-### 关键改进
+### 鍏抽敭鏀硅繘
 
-| 问题 (v3) | 解决 (v4) |
+| 闂 (v3) | 瑙ｅ喅 (v4) |
 |-----------|----------|
-| WGL_NV_DX_interop2 仅 NVIDIA | PBO 上传，跨所有 GPU（NVIDIA/AMD/Intel） |
-| DXGI Duplication ACCESS_LOST | WGC 无此问题 |
-| 无 WS_EX_LAYERED | WS_EX_LAYERED + LWA_COLORKEY 真透明叠加 |
-| SPIR-V 编译永远失败 | 删除 SPIR-V 路径，仅 GLSL |
-| 无 resize 处理 | resize 检测 + 自动重建纹理 |
-| 反馈循环风险 | WDA_EXCLUDEFROMCAPTURE 保护 |
+| WGL_NV_DX_interop2 浠?NVIDIA | PBO 涓婁紶锛岃法鎵€鏈?GPU锛圢VIDIA/AMD/Intel锛?|
+| DXGI Duplication ACCESS_LOST | WGC 鏃犳闂 |
+| 鏃?WS_EX_LAYERED | WS_EX_LAYERED + LWA_COLORKEY 鐪熼€忔槑鍙犲姞 |
+| SPIR-V 缂栬瘧姘歌繙澶辫触 | 鍒犻櫎 SPIR-V 璺緞锛屼粎 GLSL |
+| 鏃?resize 澶勭悊 | resize 妫€娴?+ 鑷姩閲嶅缓绾圭悊 |
+| 鍙嶉寰幆椋庨櫓 | WDA_EXCLUDEFROMCAPTURE 淇濇姢 |
 
-### 新增功能
+### 鏂板鍔熻兘
 
-- **resize 检测**：每帧检查 WGC 帧尺寸，变化时自动重建 staging/纹理/PBO
-- **WS_EX_LAYERED**：窗口使用 LWA_COLORKEY 实现真透明叠加
-- **double-buffered PBO**：glBufferData orphan + 双缓冲，GPU DMA 与 CPU 写入并行
+- **resize 妫€娴?*锛氭瘡甯ф鏌?WGC 甯у昂瀵革紝鍙樺寲鏃惰嚜鍔ㄩ噸寤?staging/绾圭悊/PBO
+- **WS_EX_LAYERED**锛氱獥鍙ｄ娇鐢?LWA_COLORKEY 瀹炵幇鐪熼€忔槑鍙犲姞
+- **double-buffered PBO**锛歡lBufferData orphan + 鍙岀紦鍐诧紝GPU DMA 涓?CPU 鍐欏叆骞惰
 
-### 性能特征
-- 每帧一次 GPU CopyResource（WGC frame → staging，~0.1ms）
-- 每帧一次 CPU memcpy（staging → PBO，8MB @ 1080p，~1ms）
-- PBO 上传异步（glTexSubImage2D 使用 DMA，不阻塞 CPU）
-- 总体：~1-2ms per frame，60fps 下 12% 时间预算
+### 鎬ц兘鐗瑰緛
+- 姣忓抚涓€娆?GPU CopyResource锛圵GC frame 鈫?staging锛寏0.1ms锛?- 姣忓抚涓€娆?CPU memcpy锛坰taging 鈫?PBO锛?MB @ 1080p锛寏1ms锛?- PBO 涓婁紶寮傛锛坓lTexSubImage2D 浣跨敤 DMA锛屼笉闃诲 CPU锛?- 鎬讳綋锛殈1-2ms per frame锛?0fps 涓?12% 鏃堕棿棰勭畻
 
-### 待验证
-- ⚠️ 需要实际运行验证 WGC 正常工作
-- ⚠️ 需要验证 PBO 上传在全分辨率下性能
-- ⚠️ 需要验证 WS_EX_LAYERED 透明叠加效果
-- ⚠️ 需要验证 resize 处理（外接显示器场景）
-
-## 修改文件汇总
-
-| 文件 | 操作 | 说明 |
+### 寰呴獙璇?- 鈿狅笍 闇€瑕佸疄闄呰繍琛岄獙璇?WGC 姝ｅ父宸ヤ綔
+- 鈿狅笍 闇€瑕侀獙璇?PBO 涓婁紶鍦ㄥ叏鍒嗚鲸鐜囦笅鎬ц兘
+- 鈿狅笍 闇€瑕侀獙璇?WS_EX_LAYERED 閫忔槑鍙犲姞鏁堟灉
+- 鈿狅笍 闇€瑕侀獙璇?resize 澶勭悊锛堝鎺ユ樉绀哄櫒鍦烘櫙锛?
+## 淇敼鏂囦欢姹囨€?
+| 鏂囦欢 | 鎿嶄綔 | 璇存槑 |
 |------|------|------|
-| `src/capture_wgc.h` | 新建 | WGC 捕获接口 |
-| `src/capture_wgc.cpp` | 新建 | WGC + D3D11 staging 实现 |
-| `src/gl_texture.h` | 新建 | PBO 纹理上传接口 |
-| `src/gl_texture.cpp` | 新建 | Double-buffered PBO 实现 |
-| `src/main.cpp` | 重写 | 集成 WGC+PBO，删除 DXGI/WGL/SPIR-V |
-| `CMakeLists.txt` | 修改 | 新源文件 + runtimeobject 库 |
-| `src/screen_capture.h` | 删除 | 旧 DXGI 捕获 |
-| `src/screen_capture.cpp` | 删除 | 旧 DXGI 捕获 |
-| `src/gl_interop.h` | 删除 | 旧 WGL interop (NVIDIA only) |
-| `src/gl_interop.cpp` | 删除 | 旧 WGL interop (NVIDIA only) |
+| `src/capture_wgc.h` | 鏂板缓 | WGC 鎹曡幏鎺ュ彛 |
+| `src/capture_wgc.cpp` | 鏂板缓 | WGC + D3D11 staging 瀹炵幇 |
+| `src/gl_texture.h` | 鏂板缓 | PBO 绾圭悊涓婁紶鎺ュ彛 |
+| `src/gl_texture.cpp` | 鏂板缓 | Double-buffered PBO 瀹炵幇 |
+| `src/main.cpp` | 閲嶅啓 | 闆嗘垚 WGC+PBO锛屽垹闄?DXGI/WGL/SPIR-V |
+| `CMakeLists.txt` | 淇敼 | 鏂版簮鏂囦欢 + runtimeobject 搴?|
+| `src/screen_capture.h` | 鍒犻櫎 | 鏃?DXGI 鎹曡幏 |
+| `src/screen_capture.cpp` | 鍒犻櫎 | 鏃?DXGI 鎹曡幏 |
+| `src/gl_interop.h` | 鍒犻櫎 | 鏃?WGL interop (NVIDIA only) |
+| `src/gl_interop.cpp` | 鍒犻櫎 | 鏃?WGL interop (NVIDIA only) |
 
-## 未修改文件
-- `blackhole.glsl` — 保留完整物理模拟
-- `shaders/vert.glsl` — 不变
-- `shaders/frag_desktop_header.glsl` — 不变
-- `shaders/frag_simple.glsl` — 不变
-- `shaders/frag_header.glsl` — 不变
+## 鏈慨鏀规枃浠?- `blackhole.glsl` 鈥?淇濈暀瀹屾暣鐗╃悊妯℃嫙
+- `shaders/vert.glsl` 鈥?涓嶅彉
+- `shaders/frag_desktop_header.glsl` 鈥?涓嶅彉
+- `shaders/frag_simple.glsl` 鈥?涓嶅彉
+- `shaders/frag_header.glsl` 鈥?涓嶅彉
 
-## 修改函数
+## 淇敼鍑芥暟
 
-| 函数 | 文件 | 操作 |
+| 鍑芥暟 | 鏂囦欢 | 鎿嶄綔 |
 |------|------|------|
-| `WGC_Init()` | capture_wgc.cpp | 新增 — D3D11 + WGC 会话初始化 |
-| `WGC_GetFrame()` | capture_wgc.cpp | 新增 — TryGetNextFrame 获取捕获帧 |
-| `WGC_CopyToStaging()` | capture_wgc.cpp | 新增 — CopyResource + Map 到 CPU |
-| `WGC_UnmapStaging()` | capture_wgc.cpp | 新增 — Unmap staging |
-| `WGC_Release()` | capture_wgc.cpp | 新增 — 释放所有 WGC/D3D11 资源 |
-| `GLTex_Init()` | gl_texture.cpp | 新增 — GL 纹理 + 双 PBO 初始化 |
-| `GLTex_Upload()` | gl_texture.cpp | 新增 — PBO orphan+map+copy+上传 |
-| `GLTex_Resize()` | gl_texture.cpp | 新增 — 重建纹理/PBO（resize 场景） |
-| `GLTex_Shutdown()` | gl_texture.cpp | 新增 — 释放 GL 资源 |
-| `main()` | main.cpp | 重写 — 新管线集成 |
+| `WGC_Init()` | capture_wgc.cpp | 鏂板 鈥?D3D11 + WGC 浼氳瘽鍒濆鍖?|
+| `WGC_GetFrame()` | capture_wgc.cpp | 鏂板 鈥?TryGetNextFrame 鑾峰彇鎹曡幏甯?|
+| `WGC_CopyToStaging()` | capture_wgc.cpp | 鏂板 鈥?CopyResource + Map 鍒?CPU |
+| `WGC_UnmapStaging()` | capture_wgc.cpp | 鏂板 鈥?Unmap staging |
+| `WGC_Release()` | capture_wgc.cpp | 鏂板 鈥?閲婃斁鎵€鏈?WGC/D3D11 璧勬簮 |
+| `GLTex_Init()` | gl_texture.cpp | 鏂板 鈥?GL 绾圭悊 + 鍙?PBO 鍒濆鍖?|
+| `GLTex_Upload()` | gl_texture.cpp | 鏂板 鈥?PBO orphan+map+copy+涓婁紶 |
+| `GLTex_Resize()` | gl_texture.cpp | 鏂板 鈥?閲嶅缓绾圭悊/PBO锛坮esize 鍦烘櫙锛?|
+| `GLTex_Shutdown()` | gl_texture.cpp | 鏂板 鈥?閲婃斁 GL 璧勬簮 |
+| `main()` | main.cpp | 閲嶅啓 鈥?鏂扮绾块泦鎴?|
 
-## 风险验证
+## 椋庨櫓楠岃瘉
 
-| 风险 | 状态 |
+| 椋庨櫓 | 鐘舵€?|
 |------|------|
-| WGC TryGetNextFrame 可用性 | ⚠️ 需运行时验证 |
-| CreateDirect3D11DeviceFromDXGIDevice dll 加载 | ⚠️ 需运行时验证 |
-| PBO 双缓冲上传性能 | ⚠️ 需运行时验证 |
-| WS_EX_LAYERED 透明效果 | ⚠️ 需运行时验证 |
-| resize 自动重建 | ⚠️ 需运行时验证 |
-| 内存泄漏 | ✅ 每个 Release/Shutdown 配对检查 |
+| WGC TryGetNextFrame 鍙敤鎬?| 鈿狅笍 闇€杩愯鏃堕獙璇?|
+| CreateDirect3D11DeviceFromDXGIDevice dll 鍔犺浇 | 鈿狅笍 闇€杩愯鏃堕獙璇?|
+| PBO 鍙岀紦鍐蹭笂浼犳€ц兘 | 鈿狅笍 闇€杩愯鏃堕獙璇?|
+| WS_EX_LAYERED 閫忔槑鏁堟灉 | 鈿狅笍 闇€杩愯鏃堕獙璇?|
+| resize 鑷姩閲嶅缓 | 鈿狅笍 闇€杩愯鏃堕獙璇?|
+| 鍐呭瓨娉勬紡 | 鉁?姣忎釜 Release/Shutdown 閰嶅妫€鏌?|

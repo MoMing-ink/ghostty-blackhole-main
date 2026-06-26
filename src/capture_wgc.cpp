@@ -19,6 +19,17 @@
 #include <windows.graphics.capture.interop.h>
 #include <windows.graphics.directx.direct3d11.h>
 
+
+// IDirect3DDxgiInterfaceAccess -- not in MinGW WIDL headers.
+// {A9B3D012-3DF2-4EE3-B8D1-8695F457D3C1}
+static const GUID IID_IDirect3DDxgiInterfaceAccess = {
+    0xA9B3D012, 0x3DF2, 0x4EE3, {0xB8,0xD1,0x86,0x95,0xF4,0x57,0xD3,0xC1}};
+struct IDirect3DDxgiInterfaceAccess : public IUnknown
+{
+    virtual HRESULT STDMETHODCALLTYPE GetInterface(
+        REFIID riid, void **p) = 0;
+};
+
 // ---- Convenience namespace aliases ----
 namespace WGC = ABI::Windows::Graphics::Capture;
 namespace WGD = ABI::Windows::Graphics::DirectX;
@@ -232,12 +243,24 @@ ID3D11Texture2D* WGC_GetFrame(WGCCapture& wgc) {
     frame->Release();
     if (FAILED(hr) || !surface) return nullptr;
 
-    // QI for native ID3D11Texture2D
+    // Use IDirect3DDxgiInterfaceAccess to get the underlying D3D11 texture.
+    // Direct QI for ID3D11Texture2D on a WinRT surface returns E_NOINTERFACE.
+    IDirect3DDxgiInterfaceAccess* dxgiAccess = nullptr;
+    hr = surface->QueryInterface(IID_IDirect3DDxgiInterfaceAccess,
+                                  (void**)&dxgiAccess);
+    if (FAILED(hr) || !dxgiAccess) {
+        fprintf(stderr, "[WGC] DxgiInterfaceAccess QI failed: 0x%08X\n",
+                (unsigned)hr);
+        surface->Release();
+        return nullptr;
+    }
+
     ID3D11Texture2D* tex = nullptr;
-    hr = surface->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex);
+    hr = dxgiAccess->GetInterface(__uuidof(ID3D11Texture2D), (void**)&tex);
+    dxgiAccess->Release();
     surface->Release();
     if (FAILED(hr)) {
-        fprintf(stderr, "[WGC] Surface->Texture QI failed: 0x%08X\n",
+        fprintf(stderr, "[WGC] GetInterface(ID3D11Texture2D) failed: 0x%08X\n",
                 (unsigned)hr);
         return nullptr;
     }

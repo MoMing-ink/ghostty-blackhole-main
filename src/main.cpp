@@ -176,7 +176,7 @@ static bool buildFragmentShader(std::string& out) {
     // Override SIZE_MODE: use MODE_ALWAYS for desktop capture (no token/pomodoro)
     size_t pos = body.find("#define SIZE_MODE MODE_TOKENS");
     if (pos != std::string::npos)
-        body.replace(pos, 29, "#define SIZE_MODE MODE_ALWAYS");
+        body.replace(pos, 29, "#define SIZE_MODE MODE_DEMO");
 
     out = header + "\n// ===== blackhole.glsl core =====\n" + body +
           "\nvoid main() { vec4 c; vec2 fc = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y); mainImage(c, fc); fragColor = c; }\n";
