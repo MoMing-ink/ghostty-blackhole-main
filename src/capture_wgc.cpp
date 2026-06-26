@@ -1,0 +1,282 @@
+// capture_wgc.cpp  Windows Graphics Capture using WinRT C++ ABI
+// No C++/WinRT dependency. Cross-GPU (NVIDIA / AMD / Intel).
+#include "capture_wgc.h"
+
+// Enable IID_* macros in WIDL-generated headers
+#define WIDL_using_Windows_Graphics_DirectX_Direct3D11
+#define WIDL_using_Windows_Graphics_Capture
+#define WIDL_using_Windows_Graphics
+
+#include <cstdio>
+#include <windows.h>
+#include <winstring.h>
+#include <roapi.h>
+
+#include <initguid.h>
+
+// WinRT ABI headers (MinGW WIDL-generated)
+#include <windows.graphics.capture.h>
+#include <windows.graphics.capture.interop.h>
+#include <windows.graphics.directx.direct3d11.h>
+
+// ---- Convenience namespace aliases ----
+namespace WGC = ABI::Windows::Graphics::Capture;
+namespace WGD = ABI::Windows::Graphics::DirectX;
+namespace WGD3D = ABI::Windows::Graphics::DirectX::Direct3D11;
+
+using WGC::IDirect3D11CaptureFramePoolStatics;
+using WGC::IDirect3D11CaptureFramePool;
+using WGC::IGraphicsCaptureSession;
+using WGC::IDirect3D11CaptureFrame;
+using WGC::IGraphicsCaptureItem;
+using WGD3D::IDirect3DDevice;
+using WGD3D::IDirect3DSurface;
+using ABI::Windows::Graphics::SizeInt32;
+
+// GUID for IDirect3DDevice (not exported as IID_ in MinGW WIDL)
+// {A37624AB-8D5F-4650-9D3E-9EAE3D9BC670}
+static const GUID IID_IDirect3DDevice_WGC = {
+    0xa37624ab, 0x8d5f, 0x4650, {0x9d,0x3e,0x9e,0xae,0x3d,0x9b,0xc6,0x70}};
+
+// ---- Helpers ----
+
+static HRESULT WGC_GetActivationFactory(const wchar_t* className, REFIID iid,
+                                         void** factory) {
+    HSTRING hstr = nullptr;
+    HRESULT hr = WindowsCreateString(className, (UINT32)wcslen(className), &hstr);
+    if (FAILED(hr)) return hr;
+    hr = RoGetActivationFactory(hstr, iid, factory);
+    WindowsDeleteString(hstr);
+    return hr;
+}
+
+// Convert native ID3D11Device to WinRT IDirect3DDevice.
+// CreateDirect3D11DeviceFromDXGIDevice is exported by d3d11.dll
+// but not declared in MinGW headers.
+typedef HRESULT (WINAPI *PFN_CreateDirect3D11DeviceFromDXGIDevice)(
+    IDXGIDevice* dxgiDevice, IInspectable** outDevice);
+
+static HRESULT WGC_WrapD3DDevice(ID3D11Device* d3dDev, IDirect3DDevice** outDev) {
+    static PFN_CreateDirect3D11DeviceFromDXGIDevice pFn = nullptr;
+    if (!pFn) {
+        HMODULE d3d11 = LoadLibraryA("d3d11.dll");
+        if (!d3d11) return E_FAIL;
+        pFn = (PFN_CreateDirect3D11DeviceFromDXGIDevice)
+              GetProcAddress(d3d11, "CreateDirect3D11DeviceFromDXGIDevice");
+        if (!pFn) return E_FAIL;
+    }
+
+    IDXGIDevice* dxgiDev = nullptr;
+    HRESULT hr = d3dDev->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDev);
+    if (FAILED(hr)) return hr;
+
+    IInspectable* insp = nullptr;
+    hr = pFn(dxgiDev, &insp);
+    dxgiDev->Release();
+    if (FAILED(hr)) return hr;
+
+    hr = insp->QueryInterface(IID_IDirect3DDevice_WGC, (void**)outDev);
+    insp->Release();
+    return hr;
+}
+
+// ---- Public API ----
+
+bool WGC_Init(WGCCapture& wgc) {
+    wgc.active = false;
+
+    // 1. Create D3D11 device
+    D3D_FEATURE_LEVEL featLevel;
+    HRESULT hr = D3D11CreateDevice(
+        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,
+        D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+        nullptr, 0, D3D11_SDK_VERSION,
+        &wgc.d3dDev, &featLevel, &wgc.d3dCtx);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] D3D11CreateDevice failed: 0x%08X\n", (unsigned)hr);
+        return false;
+    }
+
+    // 2. Initialize WinRT (MTA required for WGC)
+    hr = RoInitialize(RO_INIT_MULTITHREADED);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
+        fprintf(stderr, "[WGC] RoInitialize failed: 0x%08X\n", (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+
+    // 3. Get IGraphicsCaptureItemInterop factory
+    IGraphicsCaptureItemInterop* interop = nullptr;
+    hr = WGC_GetActivationFactory(
+        L"Windows.Graphics.Capture.GraphicsCaptureItem",
+        IID_IGraphicsCaptureItemInterop,
+        (void**)&interop);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] GraphicsCaptureItem factory failed: 0x%08X\n",
+                (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+
+    // 4. Create capture item for primary monitor
+    IGraphicsCaptureItem* item = nullptr;
+    hr = interop->CreateForMonitor(
+        MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTOPRIMARY),
+        __uuidof(IGraphicsCaptureItem),
+        (void**)&item);
+    interop->Release();
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] CreateForMonitor failed: 0x%08X\n", (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+    wgc.captureItem = (IUnknown*)item;
+
+    // 5. Wrap D3D11 device as WinRT IDirect3DDevice
+    IDirect3DDevice* rtDevice = nullptr;
+    hr = WGC_WrapD3DDevice(wgc.d3dDev, &rtDevice);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] Wrap D3D device failed: 0x%08X\n", (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+
+    // 6. Get IDirect3D11CaptureFramePoolStatics factory
+    IDirect3D11CaptureFramePoolStatics* poolStatics = nullptr;
+    hr = WGC_GetActivationFactory(
+        L"Windows.Graphics.Capture.Direct3D11CaptureFramePool",
+        __uuidof(IDirect3D11CaptureFramePoolStatics),
+        (void**)&poolStatics);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] FramePool factory failed: 0x%08X\n", (unsigned)hr);
+        rtDevice->Release();
+        WGC_Release(wgc);
+        return false;
+    }
+
+    // 7. Query monitor size
+    wgc.width  = GetSystemMetrics(SM_CXSCREEN);
+    wgc.height = GetSystemMetrics(SM_CYSCREEN);
+
+    // 8. Create frame pool (2 buffers for pipelining)
+    IDirect3D11CaptureFramePool* pool = nullptr;
+    WGD::DirectXPixelFormat pixelFmt = WGD::DirectXPixelFormat_B8G8R8A8UIntNormalized;
+    SizeInt32 size = { wgc.width, wgc.height };
+
+    hr = poolStatics->Create(rtDevice, pixelFmt, 2, size, &pool);
+    rtDevice->Release();
+    poolStatics->Release();
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] Create frame pool failed: 0x%08X\n", (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+    wgc.framePool = (IUnknown*)pool;
+
+    // 9. Create capture session
+    IGraphicsCaptureSession* sess = nullptr;
+    hr = pool->CreateCaptureSession(item, &sess);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] CreateCaptureSession failed: 0x%08X\n",
+                (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+    wgc.session = (IUnknown*)sess;
+
+    // 10. Start capture
+    hr = sess->StartCapture();
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] StartCapture failed: 0x%08X\n", (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+
+    // 11. Create staging texture for GPU->CPU readback
+    D3D11_TEXTURE2D_DESC stagingDesc = {};
+    stagingDesc.Width          = wgc.width;
+    stagingDesc.Height         = wgc.height;
+    stagingDesc.MipLevels      = 1;
+    stagingDesc.ArraySize      = 1;
+    stagingDesc.Format         = DXGI_FORMAT_B8G8R8A8_UNORM;
+    stagingDesc.SampleDesc.Count = 1;
+    stagingDesc.Usage          = D3D11_USAGE_STAGING;
+    stagingDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    stagingDesc.BindFlags      = 0;
+
+    hr = wgc.d3dDev->CreateTexture2D(&stagingDesc, nullptr, &wgc.stagingTex);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] Create staging tex failed: 0x%08X\n", (unsigned)hr);
+        WGC_Release(wgc);
+        return false;
+    }
+
+    wgc.active = true;
+    fprintf(stderr, "[WGC] Capture ready: %dx%d\n", wgc.width, wgc.height);
+    return true;
+}
+
+ID3D11Texture2D* WGC_GetFrame(WGCCapture& wgc) {
+    if (!wgc.active) return nullptr;
+
+    IDirect3D11CaptureFramePool* pool = (IDirect3D11CaptureFramePool*)wgc.framePool;
+    IDirect3D11CaptureFrame* frame = nullptr;
+
+    // TryGetNextFrame: non-blocking
+    HRESULT hr = pool->TryGetNextFrame(&frame);
+    if (FAILED(hr) || !frame) return nullptr;
+
+    // Get the Direct3D surface from the frame
+    IDirect3DSurface* surface = nullptr;
+    hr = frame->get_Surface(&surface);
+    frame->Release();
+    if (FAILED(hr) || !surface) return nullptr;
+
+    // QI for native ID3D11Texture2D
+    ID3D11Texture2D* tex = nullptr;
+    hr = surface->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex);
+    surface->Release();
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] Surface->Texture QI failed: 0x%08X\n",
+                (unsigned)hr);
+        return nullptr;
+    }
+    return tex;
+}
+
+bool WGC_CopyToStaging(WGCCapture& wgc, ID3D11Texture2D* srcTex,
+                       D3D11_MAPPED_SUBRESOURCE& mapped) {
+    if (!wgc.active || !srcTex || !wgc.stagingTex) return false;
+
+    // Copy frame to staging texture (GPU-only)
+    wgc.d3dCtx->CopyResource(wgc.stagingTex, srcTex);
+
+    // Map staging for CPU read
+    HRESULT hr = wgc.d3dCtx->Map(wgc.stagingTex, 0, D3D11_MAP_READ, 0, &mapped);
+    return SUCCEEDED(hr);
+}
+
+void WGC_UnmapStaging(WGCCapture& wgc) {
+    if (wgc.stagingTex)
+        wgc.d3dCtx->Unmap(wgc.stagingTex, 0);
+}
+
+void WGC_Release(WGCCapture& wgc) {
+    if (wgc.stagingTex) { wgc.stagingTex->Release(); wgc.stagingTex = nullptr; }
+
+    if (wgc.session) {
+        ((IGraphicsCaptureSession*)wgc.session)->Release();
+        wgc.session = nullptr;
+    }
+    if (wgc.framePool) {
+        ((IDirect3D11CaptureFramePool*)wgc.framePool)->Release();
+        wgc.framePool = nullptr;
+    }
+    if (wgc.captureItem) {
+        wgc.captureItem->Release();
+        wgc.captureItem = nullptr;
+    }
+    if (wgc.d3dCtx) { wgc.d3dCtx->Release(); wgc.d3dCtx = nullptr; }
+    if (wgc.d3dDev) { wgc.d3dDev->Release(); wgc.d3dDev = nullptr; }
+    wgc.active = false;
+}

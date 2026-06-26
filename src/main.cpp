@@ -1,22 +1,22 @@
- // blackhole standalone ? Windows OpenGL host for blackhole.glsl
- // Build: mkdir build && cd build && cmake .. && make
- // Requires: GLFW 3.4 (mingw-w64-ucrt-x86_64-glfw), OpenGL 3.3
- 
- #include <cstdio>
- #include <cstdlib>
- #include <cmath>
- #include <ctime>
- #include <string>
- #include <fstream>
+// blackhole standalone  Windows OpenGL host for blackhole.glsl
+// v4: WGC capture + PBO upload (cross-GPU, no vendor-specific interop)
+// Build: mkdir build && cd build && cmake .. && make
+// Requires: GLFW 3.4 (mingw-w64-ucrt-x86_64-glfw), OpenGL 3.3
+
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+#include <string>
+#include <fstream>
 #include <sstream>
 #include <vector>
-#include <regex>
 #include <cstring>
 #include <windows.h>
 #include <d3d11.h>
-#include <dxgi1_2.h>
 
-#include "screen_capture.h"
+#include "capture_wgc.h"
+#include "gl_texture.h"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -33,81 +33,81 @@
 #endif
 
 #define DECL_GL_FUNC(ret, name, args) \
-     typedef ret (WINAPI *PFN_##name##_PROC) args; \
-     static PFN_##name##_PROC gl_##name = nullptr
- 
- DECL_GL_FUNC(GLuint, CreateShader, (GLenum));
- DECL_GL_FUNC(void,   ShaderSource, (GLuint, GLsizei, const GLchar**, const GLint*));
- DECL_GL_FUNC(void,   CompileShader, (GLuint));
- DECL_GL_FUNC(void,   GetShaderiv, (GLuint, GLenum, GLint*));
- DECL_GL_FUNC(void,   GetShaderInfoLog, (GLuint, GLsizei, GLsizei*, GLchar*));
- DECL_GL_FUNC(GLuint, CreateProgram, (void));
- DECL_GL_FUNC(void,   AttachShader, (GLuint, GLuint));
- DECL_GL_FUNC(void,   LinkProgram, (GLuint));
- DECL_GL_FUNC(void,   GetProgramiv, (GLuint, GLenum, GLint*));
- DECL_GL_FUNC(void,   GetProgramInfoLog, (GLuint, GLsizei, GLsizei*, GLchar*));
- DECL_GL_FUNC(void,   DeleteShader, (GLuint));
- DECL_GL_FUNC(void,   UseProgram, (GLuint));
- DECL_GL_FUNC(GLint,  GetUniformLocation, (GLuint, const GLchar*));
- DECL_GL_FUNC(void,   Uniform3f, (GLint, GLfloat, GLfloat, GLfloat));
- DECL_GL_FUNC(void,   Uniform1f, (GLint, GLfloat));
+    typedef ret (WINAPI *PFN_##name##_PROC) args; \
+    static PFN_##name##_PROC gl_##name = nullptr
+
+DECL_GL_FUNC(GLuint, CreateShader, (GLenum));
+DECL_GL_FUNC(void,   ShaderSource, (GLuint, GLsizei, const GLchar**, const GLint*));
+DECL_GL_FUNC(void,   CompileShader, (GLuint));
+DECL_GL_FUNC(void,   GetShaderiv, (GLuint, GLenum, GLint*));
+DECL_GL_FUNC(void,   GetShaderInfoLog, (GLuint, GLsizei, GLsizei*, GLchar*));
+DECL_GL_FUNC(GLuint, CreateProgram, (void));
+DECL_GL_FUNC(void,   AttachShader, (GLuint, GLuint));
+DECL_GL_FUNC(void,   LinkProgram, (GLuint));
+DECL_GL_FUNC(void,   GetProgramiv, (GLuint, GLenum, GLint*));
+DECL_GL_FUNC(void,   GetProgramInfoLog, (GLuint, GLsizei, GLsizei*, GLchar*));
+DECL_GL_FUNC(void,   DeleteShader, (GLuint));
+DECL_GL_FUNC(void,   UseProgram, (GLuint));
+DECL_GL_FUNC(GLint,  GetUniformLocation, (GLuint, const GLchar*));
+DECL_GL_FUNC(void,   Uniform3f, (GLint, GLfloat, GLfloat, GLfloat));
+DECL_GL_FUNC(void,   Uniform1f, (GLint, GLfloat));
 DECL_GL_FUNC(void,   Uniform1i, (GLint, GLint));
 DECL_GL_FUNC(void,   ActiveTexture, (GLenum));
- DECL_GL_FUNC(void,   Uniform4f, (GLint, GLfloat, GLfloat, GLfloat, GLfloat));
- DECL_GL_FUNC(void,   GenVertexArrays, (GLsizei, GLuint*));
- DECL_GL_FUNC(void,   GenBuffers, (GLsizei, GLuint*));
- DECL_GL_FUNC(void,   BindVertexArray, (GLuint));
- DECL_GL_FUNC(void,   BindBuffer, (GLenum, GLuint));
- DECL_GL_FUNC(void,   BufferData, (GLenum, GLsizeiptr, const void*, GLenum));
- DECL_GL_FUNC(void,   VertexAttribPointer, (GLuint, GLint, GLenum, GLboolean, GLsizei, const void*));
- DECL_GL_FUNC(void,   EnableVertexAttribArray, (GLuint));
- DECL_GL_FUNC(void,   DrawArrays, (GLenum, GLint, GLsizei));
- DECL_GL_FUNC(void,   DeleteVertexArrays, (GLsizei, const GLuint*));
- DECL_GL_FUNC(void,   DeleteBuffers, (GLsizei, const GLuint*));
- DECL_GL_FUNC(void,   DeleteProgram, (GLuint));
- 
- #define LOAD_GL_FUNC(name) do { \
-     gl_##name = (PFN_##name##_PROC)glfwGetProcAddress("gl" #name); \
-     if (!gl_##name) { fprintf(stderr, "Failed to load gl" #name "\n"); return false; } \
- } while(0)
- 
- static bool loadGLFunctions() {
-     LOAD_GL_FUNC(CreateShader);
-     LOAD_GL_FUNC(ShaderSource);
-     LOAD_GL_FUNC(CompileShader);
-     LOAD_GL_FUNC(GetShaderiv);
-     LOAD_GL_FUNC(GetShaderInfoLog);
-     LOAD_GL_FUNC(CreateProgram);
-     LOAD_GL_FUNC(AttachShader);
-     LOAD_GL_FUNC(LinkProgram);
-     LOAD_GL_FUNC(GetProgramiv);
-     LOAD_GL_FUNC(GetProgramInfoLog);
-     LOAD_GL_FUNC(DeleteShader);
-     LOAD_GL_FUNC(UseProgram);
-     LOAD_GL_FUNC(GetUniformLocation);
-     LOAD_GL_FUNC(Uniform3f);
-     LOAD_GL_FUNC(Uniform1f);
+DECL_GL_FUNC(void,   Uniform4f, (GLint, GLfloat, GLfloat, GLfloat, GLfloat));
+DECL_GL_FUNC(void,   GenVertexArrays, (GLsizei, GLuint*));
+DECL_GL_FUNC(void,   GenBuffers, (GLsizei, GLuint*));
+DECL_GL_FUNC(void,   BindVertexArray, (GLuint));
+DECL_GL_FUNC(void,   BindBuffer, (GLenum, GLuint));
+DECL_GL_FUNC(void,   BufferData, (GLenum, GLsizeiptr, const void*, GLenum));
+DECL_GL_FUNC(void,   VertexAttribPointer, (GLuint, GLint, GLenum, GLboolean, GLsizei, const void*));
+DECL_GL_FUNC(void,   EnableVertexAttribArray, (GLuint));
+DECL_GL_FUNC(void,   DrawArrays, (GLenum, GLint, GLsizei));
+DECL_GL_FUNC(void,   DeleteVertexArrays, (GLsizei, const GLuint*));
+DECL_GL_FUNC(void,   DeleteBuffers, (GLsizei, const GLuint*));
+DECL_GL_FUNC(void,   DeleteProgram, (GLuint));
+
+#define LOAD_GL_FUNC(name) do { \
+    gl_##name = (PFN_##name##_PROC)glfwGetProcAddress("gl" #name); \
+    if (!gl_##name) { fprintf(stderr, "Failed to load gl" #name "\n"); return false; } \
+} while(0)
+
+static bool loadGLFunctions() {
+    LOAD_GL_FUNC(CreateShader);
+    LOAD_GL_FUNC(ShaderSource);
+    LOAD_GL_FUNC(CompileShader);
+    LOAD_GL_FUNC(GetShaderiv);
+    LOAD_GL_FUNC(GetShaderInfoLog);
+    LOAD_GL_FUNC(CreateProgram);
+    LOAD_GL_FUNC(AttachShader);
+    LOAD_GL_FUNC(LinkProgram);
+    LOAD_GL_FUNC(GetProgramiv);
+    LOAD_GL_FUNC(GetProgramInfoLog);
+    LOAD_GL_FUNC(DeleteShader);
+    LOAD_GL_FUNC(UseProgram);
+    LOAD_GL_FUNC(GetUniformLocation);
+    LOAD_GL_FUNC(Uniform3f);
+    LOAD_GL_FUNC(Uniform1f);
     LOAD_GL_FUNC(Uniform1i);
     LOAD_GL_FUNC(ActiveTexture);
-     LOAD_GL_FUNC(Uniform4f);
-     LOAD_GL_FUNC(GenVertexArrays);
-     LOAD_GL_FUNC(GenBuffers);
-     LOAD_GL_FUNC(BindVertexArray);
-     LOAD_GL_FUNC(BindBuffer);
-     LOAD_GL_FUNC(BufferData);
-     LOAD_GL_FUNC(VertexAttribPointer);
-     LOAD_GL_FUNC(EnableVertexAttribArray);
-     LOAD_GL_FUNC(DrawArrays);
-     LOAD_GL_FUNC(DeleteVertexArrays);
-     LOAD_GL_FUNC(DeleteBuffers);
-     LOAD_GL_FUNC(DeleteProgram);
-     return true;
- }
- 
- // =====================================================================
- // Shader helpers
- // =====================================================================
- 
+    LOAD_GL_FUNC(Uniform4f);
+    LOAD_GL_FUNC(GenVertexArrays);
+    LOAD_GL_FUNC(GenBuffers);
+    LOAD_GL_FUNC(BindVertexArray);
+    LOAD_GL_FUNC(BindBuffer);
+    LOAD_GL_FUNC(BufferData);
+    LOAD_GL_FUNC(VertexAttribPointer);
+    LOAD_GL_FUNC(EnableVertexAttribArray);
+    LOAD_GL_FUNC(DrawArrays);
+    LOAD_GL_FUNC(DeleteVertexArrays);
+    LOAD_GL_FUNC(DeleteBuffers);
+    LOAD_GL_FUNC(DeleteProgram);
+    return true;
+}
+
+// =====================================================================
+// Shader helpers
+// =====================================================================
+
 static std::string readFile(const char* path) {
     std::ifstream f(path, std::ios::in | std::ios::binary);
     if (!f) {
@@ -115,11 +115,11 @@ static std::string readFile(const char* path) {
         return "";
     }
     std::stringstream ss;
-     ss << f.rdbuf();
-     return ss.str();
- }
- 
- static GLuint compileShader(GLenum type, const std::string& source) {
+    ss << f.rdbuf();
+    return ss.str();
+}
+
+static GLuint compileShader(GLenum type, const std::string& source) {
     GLuint shader = gl_CreateShader(type);
     const char* src = source.c_str();
     gl_ShaderSource(shader, 1, &src, nullptr);
@@ -135,17 +135,17 @@ static std::string readFile(const char* path) {
         gl_DeleteShader(shader);
         return 0;
     }
-     return shader;
- }
- 
- static GLuint createProgram(const std::string& vertSrc, const std::string& fragSrc) {
-     GLuint vs = compileShader(GL_VERTEX_SHADER, vertSrc);
-     if (!vs) return 0;
-     GLuint fs = compileShader(GL_FRAGMENT_SHADER, fragSrc);
-     if (!fs) { gl_DeleteShader(vs); return 0; }
-     GLuint prog = gl_CreateProgram();
-     gl_AttachShader(prog, vs);
-     gl_AttachShader(prog, fs);
+    return shader;
+}
+
+static GLuint createProgram(const std::string& vertSrc, const std::string& fragSrc) {
+    GLuint vs = compileShader(GL_VERTEX_SHADER, vertSrc);
+    if (!vs) return 0;
+    GLuint fs = compileShader(GL_FRAGMENT_SHADER, fragSrc);
+    if (!fs) { gl_DeleteShader(vs); return 0; }
+    GLuint prog = gl_CreateProgram();
+    gl_AttachShader(prog, vs);
+    gl_AttachShader(prog, fs);
     gl_LinkProgram(prog);
     GLint ok = 0;
     gl_GetProgramiv(prog, GL_LINK_STATUS, &ok);
@@ -157,40 +157,36 @@ static std::string readFile(const char* path) {
         gl_DeleteProgram(prog);
         gl_DeleteShader(vs);
         gl_DeleteShader(fs);
-         return 0;
-     }
-     gl_DeleteShader(vs);
-     gl_DeleteShader(fs);
-     return prog;
- }
- 
- // =====================================================================
- // Config: set SIZE_MODE in blackhole.glsl to MODE_DEMO for showcase,
- // or MODE_POMODORO for perpetual growth (no idle detection in standalone)
- // =====================================================================
- 
+        return 0;
+    }
+    gl_DeleteShader(vs);
+    gl_DeleteShader(fs);
+    return prog;
+}
+
+// =====================================================================
+// Shader composition
+// =====================================================================
 
 static bool buildFragmentShader(std::string& out) {
-    // Compose full blackhole.glsl for desktop: header + physics core + main() wrapper
     std::string header = readFile("shaders/frag_desktop_header.glsl");
     std::string body   = readFile("blackhole.glsl");
     if (header.empty() || body.empty()) return false;
 
-    // Override SIZE_MODE: use MODE_DEMO (42s self-running showcase loop)
+    // Override SIZE_MODE: use MODE_ALWAYS for desktop capture (no token/pomodoro)
     size_t pos = body.find("#define SIZE_MODE MODE_TOKENS");
     if (pos != std::string::npos)
-        body.replace(pos, 29, "#define SIZE_MODE MODE_DEMO");
+        body.replace(pos, 29, "#define SIZE_MODE MODE_ALWAYS");
 
     out = header + "\n// ===== blackhole.glsl core =====\n" + body +
           "\nvoid main() { vec4 c; vec2 fc = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y); mainImage(c, fc); fragColor = c; }\n";
     return true;
 }
- 
- // =====================================================================
- // Main
- // =====================================================================
 
-// ---- Blackhole mode system ----
+// =====================================================================
+// Mode system
+// =====================================================================
+
 enum BlackholeMode { MODE_ALWAYS, MODE_IDLE, MODE_OFF };
 
 static bool isIdle(DWORD thresholdMs) {
@@ -199,11 +195,14 @@ static bool isIdle(DWORD thresholdMs) {
     return (GetTickCount() - lii.dwTime) >= thresholdMs;
 }
 
- 
+// =====================================================================
+// Main
+// =====================================================================
+
 int main(int argc, char* argv[]) {
-    // Parse mode from command line
+    // Parse mode
     BlackholeMode bhMode = MODE_ALWAYS;
-    int idleSec = 300; // default idle threshold: 5 min
+    int idleSec = 300;
     if (argc > 1) {
         if (strcmp(argv[1], "idle") == 0) bhMode = MODE_IDLE;
         else if (strcmp(argv[1], "off") == 0) bhMode = MODE_OFF;
@@ -213,189 +212,156 @@ int main(int argc, char* argv[]) {
         if (idleSec < 10) idleSec = 10;
     }
     if (bhMode == MODE_OFF) {
-        fprintf(stderr, "Blackhole: MODE_OFF, exiting.\\n");
+        fprintf(stderr, "Blackhole: MODE_OFF, exiting.\n");
         return 0;
     }
-    fprintf(stderr, "Blackhole: mode=%s idle=%ds\\n",
+    fprintf(stderr, "Blackhole: mode=%s idle=%ds\n",
         bhMode == MODE_IDLE ? "idle" : "always", idleSec);
 
-     // Initialize GLFW
-     if (!glfwInit()) {
-         fprintf(stderr, "Failed to initialize GLFW\n");
-         return 1;
-     }
- 
+    // Init GLFW
+    if (!glfwInit()) {
+        fprintf(stderr, "Failed to initialize GLFW\n");
+        return 1;
+    }
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
-     glfwWindowHint(GLFW_DECORATED, GL_FALSE);
-     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+    glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_MOUSE_PASSTHROUGH, GLFW_TRUE);
- 
-     // Get primary monitor video mode for sizing
-     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-     int winW = mode->width;
-     int winH = mode->height;
- 
-     GLFWwindow* window = glfwCreateWindow(winW, winH, "Black Hole (ESC to exit)", nullptr, nullptr);
-    glfwSetWindowPos(window, 0, 0);
-     if (!window) {
-         fprintf(stderr, "Failed to create window\n");
-         glfwTerminate();
-         return 1;
-     }
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 
-    // Desktop overlay: always-on-top + click-through
+    // Get primary monitor size
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    int winW = mode->width;
+    int winH = mode->height;
+
+    GLFWwindow* window = glfwCreateWindow(winW, winH, "Black Hole (ESC to exit)", nullptr, nullptr);
+    glfwSetWindowPos(window, 0, 0);
+    if (!window) {
+        fprintf(stderr, "Failed to create window\n");
+        glfwTerminate();
+        return 1;
+    }
+
+    // Desktop overlay: always-on-top + click-through + exclude from capture
     {
         HWND hwnd = glfwGetWin32Window(window);
         SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
         LONG ex = GetWindowLong(hwnd, GWL_EXSTYLE);
-        SetWindowLong(hwnd, GWL_EXSTYLE, ex | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW);
+        SetWindowLong(hwnd, GWL_EXSTYLE, ex | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_LAYERED);
+        // Exclude from WGC/DXGI capture (prevents feedback loop)
+        SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
+        // Make black pixels transparent
+        SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
     }
 
- 
     glfwMakeContextCurrent(window);
     setbuf(stderr, NULL);
     glfwSwapInterval(1);  // VSync on
-
-    // ---- DXGI desktop capture (init after GL context) ----
-    ScreenCapture screenCap;
-    GLuint screenTex = 0;
-    if (scInit(screenCap)) {
-        glGenTextures(1, &screenTex);
-        glBindTexture(GL_TEXTURE_2D, screenTex);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, screenCap.width, screenCap.height,
-                     0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
 
     fprintf(stderr, "OpenGL %s, GLSL %s\n",
         glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     if (!loadGLFunctions()) {
-         glfwTerminate();
-         return 1;
-     }
-
-     // Build and compile shaders
-     std::string vertSrc = readFile("shaders/vert.glsl");
-     if (vertSrc.empty()) { glfwTerminate(); return 1; }
-     std::string fragSrc;
-     if (!buildFragmentShader(fragSrc)) { glfwTerminate(); return 1; }
- 
-    // === SPIR-V fragment shader (bypasses NVIDIA Cg compiler) ===
-    const GLenum SPIRV_FORMAT = 0x9551; // GL_SHADER_BINARY_FORMAT_SPIR_V
-    typedef void (WINAPI *SPIRV_BIN_FN)(GLsizei,const GLuint*,GLenum,const void*,GLsizei);
-    typedef void (WINAPI *SPIRV_SPEC_FN)(GLuint,const GLchar*,GLuint,const GLuint*,const GLuint*);
-
-    GLuint program = 0;
-    {
-        std::string glsl;
-        if (buildFragmentShader(glsl)) {
-            { std::ofstream f("build/temp_shader.glsl"); f << glsl; }
-            std::string cmd = "C:/msys64/ucrt64/bin/glslangValidator.exe -G -S frag"
-                " -o build/temp_shader.spv build/temp_shader.glsl 2>nul";
-            int spv_ret = system(cmd.c_str());
-
-            if (spv_ret == 0) {
-                std::ifstream spf("build/temp_shader.spv", std::ios::binary|std::ios::ate);
-                std::streamsize sz = spf.tellg(); spf.seekg(0);
-                std::vector<char> spv((size_t)sz);
-                if (spf.read(spv.data(), sz)) {
-                    auto binFn = (SPIRV_BIN_FN)glfwGetProcAddress("glShaderBinary");
-                    auto specFn = (SPIRV_SPEC_FN)glfwGetProcAddress("glSpecializeShader");
-                    if (binFn && specFn) {
-                        GLuint fsh = gl_CreateShader(GL_FRAGMENT_SHADER);
-                        GLuint ids[] = { fsh };
-                        binFn(1, ids, SPIRV_FORMAT, spv.data(), (GLint)sz);
-                        specFn(fsh, "main", 0, nullptr, nullptr);
-                        GLint ok = 0; gl_GetShaderiv(fsh, GL_COMPILE_STATUS, &ok);
-                        if (ok) {
-                            program = gl_CreateProgram();
-                            GLuint vs = compileShader(GL_VERTEX_SHADER, vertSrc);
-                            if (vs) {
-                                gl_AttachShader(program, vs); gl_AttachShader(program, fsh);
-                                gl_LinkProgram(program); gl_GetProgramiv(program, GL_LINK_STATUS, &ok);
-                                if (!ok) {
-                                    char lg[4096]; gl_GetProgramInfoLog(program,sizeof(lg),nullptr,lg);
-                                    fprintf(stderr,"SPIR-V link error: %s\n",lg);
-                                    gl_DeleteProgram(program); program=0;
-                                }
-                                gl_DeleteShader(vs);
-                            }
-                            gl_DeleteShader(fsh);
-                        } else {
-                            char lg[4096]; gl_GetShaderInfoLog(fsh,sizeof(lg),nullptr,lg);
-                            fprintf(stderr,"SPIR-V spec error: %s\n",lg); gl_DeleteShader(fsh);
-                        }
-                    }
-                } std::remove("build/temp_shader.spv");
-            } else { fprintf(stderr,"SPIR-V compile failed, using GLSL fallback\n"); }
-            std::remove("build/temp_shader.glsl");
-        }
+        glfwTerminate();
+        return 1;
     }
-    // Fallback: GLSL compilation if SPIR-V failed
+
+    // ---- WGC capture init ----
+    WGCCapture wgc;
+    bool capOk = WGC_Init(wgc);
+    if (!capOk) {
+        fprintf(stderr, "FATAL: WGC capture init failed\n");
+        glfwTerminate();
+        return 1;
+    }
+
+    // ---- PBO texture upload init ----
+    GLTextureUpload glTex;
+    if (!GLTex_Init(glTex, wgc.width, wgc.height)) {
+        fprintf(stderr, "FATAL: PBO texture init failed\n");
+        WGC_Release(wgc);
+        glfwTerminate();
+        return 1;
+    }
+
+    // ---- Shader compilation (GLSL only, no SPIR-V) ----
+    std::string vertSrc = readFile("shaders/vert.glsl");
+    if (vertSrc.empty()) {
+        GLTex_Shutdown(glTex);
+        WGC_Release(wgc);
+        glfwTerminate();
+        return 1;
+    }
+    std::string fragSrc;
+    if (!buildFragmentShader(fragSrc)) {
+        GLTex_Shutdown(glTex);
+        WGC_Release(wgc);
+        glfwTerminate();
+        return 1;
+    }
+
+    GLuint program = createProgram(vertSrc, fragSrc);
     if (!program) {
-        std::string glsl;
-        if (buildFragmentShader(glsl)) program = createProgram(vertSrc, glsl);
-    }
-    if (!program) {
-        fprintf(stderr, "FATAL: No shader program available.\n");
-        glfwTerminate(); return 1;
+        fprintf(stderr, "FATAL: Shader program creation failed.\n");
+        GLTex_Shutdown(glTex);
+        WGC_Release(wgc);
+        glfwTerminate();
+        return 1;
     }
 
+    // ---- Full-screen quad ----
+    float vertices[] = {
+        -1.0f, -1.0f,
+         1.0f, -1.0f,
+        -1.0f,  1.0f,
+         1.0f,  1.0f,
+    };
+    GLuint indices[] = { 0, 1, 2, 1, 3, 2 };
 
-     // Full-screen quad: two triangles
-     float vertices[] = {
-         -1.0f, -1.0f,
-          1.0f, -1.0f,
-         -1.0f,  1.0f,
-          1.0f,  1.0f,
-     };
-     GLuint indices[] = { 0, 1, 2, 1, 3, 2 };
- 
-     GLuint vao, vbo, ebo;
-     gl_GenVertexArrays(1, &vao);
-     gl_GenBuffers(1, &vbo);
-     gl_GenBuffers(1, &ebo);
- 
-     gl_BindVertexArray(vao);
-     gl_BindBuffer(GL_ARRAY_BUFFER, vbo);
-     gl_BufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-     gl_BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-     gl_BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-     gl_VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-     gl_EnableVertexAttribArray(0);
-     gl_BindVertexArray(0);
- 
-     // Uniform locations
-     gl_UseProgram(program);
-     GLint locResolution = gl_GetUniformLocation(program, "iResolution");
-     GLint locTime       = gl_GetUniformLocation(program, "iTime");
-     GLint locDate       = gl_GetUniformLocation(program, "iDate");
+    GLuint vao, vbo, ebo;
+    gl_GenVertexArrays(1, &vao);
+    gl_GenBuffers(1, &vbo);
+    gl_GenBuffers(1, &ebo);
+
+    gl_BindVertexArray(vao);
+    gl_BindBuffer(GL_ARRAY_BUFFER, vbo);
+    gl_BufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    gl_BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    gl_BufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    gl_VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    gl_EnableVertexAttribArray(0);
+    gl_BindVertexArray(0);
+
+    // Uniform locations
+    gl_UseProgram(program);
+    GLint locResolution = gl_GetUniformLocation(program, "iResolution");
+    GLint locTime       = gl_GetUniformLocation(program, "iTime");
+    GLint locDate       = gl_GetUniformLocation(program, "iDate");
     GLint locChannel0   = gl_GetUniformLocation(program, "iChannel0");
-     gl_UseProgram(0);
- 
-     // Main loop
-     double startTime = glfwGetTime();
-     int frames = 0;
-     double lastFpsTime = startTime;
-     char title[128];
- 
-     while (!glfwWindowShouldClose(window)) {
-         glfwPollEvents();
- 
-         // ESC to exit
-         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-             glfwSetWindowShouldClose(window, GL_TRUE);
+    gl_UseProgram(0);
 
-        // Idle mode: auto show/hide based on user activity
+    // ---- Main loop ----
+    double startTime = glfwGetTime();
+    int frames = 0;
+    double lastFpsTime = startTime;
+    char title[128];
+
+    // Give WGC a moment to start delivering frames
+    fprintf(stderr, "Waiting for first WGC frame...\n");
+
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+
+        // ESC to exit
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, GL_TRUE);
+
+        // Idle mode
         if (bhMode == MODE_IDLE) {
             if (isIdle((DWORD)idleSec * 1000)) {
                 glfwShowWindow(window);
@@ -410,63 +376,74 @@ int main(int argc, char* argv[]) {
                 glfwShowWindow(window);
         }
 
- 
-         // Window size
-         int fbW, fbH;
-         glfwGetFramebufferSize(window, &fbW, &fbH);
-         glViewport(0, 0, fbW, fbH);
- 
-         // Capture desktop: DXGI Acquire -> CopyResource -> Map -> pixels
-         const unsigned char* pix = scCapture(screenCap);
-         if (pix) {
-             glBindTexture(GL_TEXTURE_2D, screenTex);
-             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                             screenCap.width, screenCap.height,
-                             GL_BGRA, GL_UNSIGNED_BYTE, pix);
-             glBindTexture(GL_TEXTURE_2D, 0);
-         }
+        // Window / framebuffer size
+        int fbW, fbH;
+        glfwGetFramebufferSize(window, &fbW, &fbH);
+        glViewport(0, 0, fbW, fbH);
 
-         // Update uniforms
-         double now = glfwGetTime();
-         float t = (float)(now - startTime);
-         float epochSec = (float)time(nullptr);
- 
-         gl_UseProgram(program);
+        // ---- WGC capture -> PBO upload ----
+        ID3D11Texture2D* frame = WGC_GetFrame(wgc);
+        if (frame) {
+            D3D11_MAPPED_SUBRESOURCE mapped;
+            if (WGC_CopyToStaging(wgc, frame, mapped)) {
+                // Check for size change
+                D3D11_TEXTURE2D_DESC desc;
+                frame->GetDesc(&desc);
+                if ((int)desc.Width != glTex.width || (int)desc.Height != glTex.height) {
+                    fprintf(stderr, "[Resize] %dx%d -> %dx%d\n",
+                            glTex.width, glTex.height,
+                            (int)desc.Width, (int)desc.Height);
+                    GLTex_Resize(glTex, (int)desc.Width, (int)desc.Height);
+                }
+                GLTex_Upload(glTex, mapped.pData, (int)mapped.RowPitch);
+                WGC_UnmapStaging(wgc);
+            }
+            frame->Release();
+        }
 
-         // Bind desktop texture to iChannel0 (texture unit 0)
-         gl_ActiveTexture(GL_TEXTURE0);
-         glBindTexture(GL_TEXTURE_2D, screenTex);
-         gl_Uniform1i(locChannel0, 0);
+        // Update uniforms
+        double now = glfwGetTime();
+        float t = (float)(now - startTime);
+        float epochSec = (float)time(nullptr);
 
-         gl_Uniform3f(locResolution, (float)fbW, (float)fbH, 0.0f);
-         gl_Uniform1f(locTime, t);
-         gl_Uniform4f(locDate, 0.0f, 0.0f, 0.0f, epochSec);
- 
-         gl_BindVertexArray(vao);
-         gl_DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-         gl_BindVertexArray(0);
-         gl_UseProgram(0);
- 
-         glfwSwapBuffers(window);
- 
-         // FPS counter in title bar
-         frames++;
-         if (now - lastFpsTime >= 1.0) {
-             snprintf(title, sizeof(title), "Black Hole  [%d FPS]  (ESC to exit)", frames);
-             glfwSetWindowTitle(window, title);
-             frames = 0;
-             lastFpsTime = now;
-         }
-     }
- 
-     // Cleanup
-     scShutdown(screenCap);
-     if (screenTex) glDeleteTextures(1, &screenTex);
-     gl_DeleteProgram(program);
-     gl_DeleteVertexArrays(1, &vao);
-     gl_DeleteBuffers(1, &vbo);
-     gl_DeleteBuffers(1, &ebo);
-     glfwTerminate();
-     return 0;
- }
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
+        gl_UseProgram(program);
+
+        // Bind desktop texture to iChannel0
+        gl_ActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, GLTex_GetTexture(glTex));
+        gl_Uniform1i(locChannel0, 0);
+
+        gl_Uniform3f(locResolution, (float)fbW, (float)fbH, 0.0f);
+        gl_Uniform1f(locTime, t);
+        gl_Uniform4f(locDate, 0.0f, 0.0f, 0.0f, epochSec);
+
+        gl_BindVertexArray(vao);
+        gl_DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        gl_BindVertexArray(0);
+        gl_UseProgram(0);
+
+        glfwSwapBuffers(window);
+
+        // FPS counter
+        frames++;
+        if (now - lastFpsTime >= 1.0) {
+            snprintf(title, sizeof(title), "Black Hole  [%d FPS]  (ESC to exit)", frames);
+            glfwSetWindowTitle(window, title);
+            frames = 0;
+            lastFpsTime = now;
+        }
+    }
+
+    // Cleanup
+    GLTex_Shutdown(glTex);
+    WGC_Release(wgc);
+    gl_DeleteProgram(program);
+    gl_DeleteVertexArrays(1, &vao);
+    gl_DeleteBuffers(1, &vbo);
+    gl_DeleteBuffers(1, &ebo);
+    glfwTerminate();
+    return 0;
+}

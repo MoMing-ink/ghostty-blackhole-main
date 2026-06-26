@@ -1,71 +1,110 @@
-﻿# Debug State — Blackhole Desktop Pet v3: DXGI + WGL Interop (实施完成)
+# Debug State — Blackhole v4: WGC + PBO 架构迁移
 
 ## 实施结果
 
 ### 编译 ✅
 - 零警告零错误通过
-- 3 源文件链接: main.cpp + screen_capture.cpp + gl_interop.cpp
-- 依赖库: glfw3 + opengl32 + gdi32 + d3d11 + dxgi
+- 3 源文件链接: main.cpp + capture_wgc.cpp + gl_texture.cpp
+- 依赖库: glfw + opengl32 + d3d11 + dxgi + gdi32 + runtimeobject
 
-### 运行时验证 ✅
-```
-Blackhole: mode=always idle=300s
-OpenGL 4.6.0 NVIDIA 596.49, GLSL 4.60 NVIDIA
-[DXGI] Desktop capture ready: 2560x1600
-[GLInterop] Zero-copy interop ready: 2560x1600 (WGL_NV_DX_interop2)
-SPIR-V compile failed, using GLSL fallback
-[frag] log: warning C7533: global variable gl_FragColor is deprecated after version 120
-Link log: (success, only deprecation warning)
-```
-程序正常运行 5 秒无崩溃，shader 编译链接通过。
+### 架构变更
 
-### GPU 管线 (确认)
+**旧架构 (v3) — 已删除：**
 ```
-DXGI Desktop Duplication (2560x1600, ~60fps)
-    → CopyResource (GPU内部, 零CPU)
-    → 固定 shared texture (WGL_NV_DX_interop2 一次性注册)
-    → blackhole.glsl (544行完整物理模拟, MODE_DEMO 42s轮播)
-    → 全屏透明叠加窗口 (WS_EX_TOPMOST + WS_EX_TRANSPARENT)
+DXGI Desktop Duplication (screen_capture)
+    → AcquireNextFrame / ReleaseFrame
+    → CopyResource → shared D3D11 texture
+    → WGL_NV_DX_interop2 (NVIDIA only) → OpenGL texture
+    → blackhole.glsl → 窗口
 ```
+- `src/screen_capture.h` / `.cpp` — 已删除
+- `src/gl_interop.h` / `.cpp` — 已删除
+- SPIR-V 编译路径 — 已删除，只保留 GLSL
 
-### 已知事项
-- SPIR-V 路径对组合 shader 不兼容，GLSL fallback 正常运作
-- gl_FragColor 废弃警告 (兼容性 profile 正常现象)
-- 2560x1600 高分辨率下性能待实际交互验证
+**新架构 (v4) — 跨 GPU：**
+```
+Windows Graphics Capture (capture_wgc)
+    → TryGetNextFrame → ID3D11Texture2D
+    → CopyResource → staging texture (D3D11_USAGE_STAGING)
+    → Map → memcpy → PBO → glTexSubImage2D
+    → OpenGL texture → blackhole.glsl → 窗口
+```
+- `src/capture_wgc.h` / `.cpp` — 新建：WGC 捕获模块
+- `src/gl_texture.h` / `.cpp` — 新建：PBO 异步上传模块
+
+### 关键改进
+
+| 问题 (v3) | 解决 (v4) |
+|-----------|----------|
+| WGL_NV_DX_interop2 仅 NVIDIA | PBO 上传，跨所有 GPU（NVIDIA/AMD/Intel） |
+| DXGI Duplication ACCESS_LOST | WGC 无此问题 |
+| 无 WS_EX_LAYERED | WS_EX_LAYERED + LWA_COLORKEY 真透明叠加 |
+| SPIR-V 编译永远失败 | 删除 SPIR-V 路径，仅 GLSL |
+| 无 resize 处理 | resize 检测 + 自动重建纹理 |
+| 反馈循环风险 | WDA_EXCLUDEFROMCAPTURE 保护 |
+
+### 新增功能
+
+- **resize 检测**：每帧检查 WGC 帧尺寸，变化时自动重建 staging/纹理/PBO
+- **WS_EX_LAYERED**：窗口使用 LWA_COLORKEY 实现真透明叠加
+- **double-buffered PBO**：glBufferData orphan + 双缓冲，GPU DMA 与 CPU 写入并行
+
+### 性能特征
+- 每帧一次 GPU CopyResource（WGC frame → staging，~0.1ms）
+- 每帧一次 CPU memcpy（staging → PBO，8MB @ 1080p，~1ms）
+- PBO 上传异步（glTexSubImage2D 使用 DMA，不阻塞 CPU）
+- 总体：~1-2ms per frame，60fps 下 12% 时间预算
+
+### 待验证
+- ⚠️ 需要实际运行验证 WGC 正常工作
+- ⚠️ 需要验证 PBO 上传在全分辨率下性能
+- ⚠️ 需要验证 WS_EX_LAYERED 透明叠加效果
+- ⚠️ 需要验证 resize 处理（外接显示器场景）
 
 ## 修改文件汇总
 
-| 文件 | 操作 | 行数 |
+| 文件 | 操作 | 说明 |
 |------|------|------|
-| `src/screen_capture.h` | 新建 | 23 |
-| `src/screen_capture.cpp` | 新建 | 89 |
-| `src/gl_interop.h` | 新建 | 35 |
-| `src/gl_interop.cpp` | 新建 | 128 |
-| `shaders/frag_desktop_header.glsl` | 新建 | 22 |
-| `src/main.cpp` | 修改 | +60行(集成DXGI+interop+全屏) |
-| `.vscode/tasks.json` | 修改 | +4行(源文件+库) |
+| `src/capture_wgc.h` | 新建 | WGC 捕获接口 |
+| `src/capture_wgc.cpp` | 新建 | WGC + D3D11 staging 实现 |
+| `src/gl_texture.h` | 新建 | PBO 纹理上传接口 |
+| `src/gl_texture.cpp` | 新建 | Double-buffered PBO 实现 |
+| `src/main.cpp` | 重写 | 集成 WGC+PBO，删除 DXGI/WGL/SPIR-V |
+| `CMakeLists.txt` | 修改 | 新源文件 + runtimeobject 库 |
+| `src/screen_capture.h` | 删除 | 旧 DXGI 捕获 |
+| `src/screen_capture.cpp` | 删除 | 旧 DXGI 捕获 |
+| `src/gl_interop.h` | 删除 | 旧 WGL interop (NVIDIA only) |
+| `src/gl_interop.cpp` | 删除 | 旧 WGL interop (NVIDIA only) |
+
+## 未修改文件
+- `blackhole.glsl` — 保留完整物理模拟
+- `shaders/vert.glsl` — 不变
+- `shaders/frag_desktop_header.glsl` — 不变
+- `shaders/frag_simple.glsl` — 不变
+- `shaders/frag_header.glsl` — 不变
 
 ## 修改函数
 
 | 函数 | 文件 | 操作 |
 |------|------|------|
-| `scInit()` | screen_capture.cpp | 新增 — D3D11设备+DXGI桌面复制初始化 |
-| `scAcquireFrame()` | screen_capture.cpp | 新增 — 获取桌面帧(GPU纹理) |
-| `scShutdown()` | screen_capture.cpp | 新增 — 释放DXGI资源 |
-| `giInit()` | gl_interop.cpp | 新增 — WGL_NV_DX_interop2初始化+固定纹理注册 |
-| `giUpdate()` | gl_interop.cpp | 新增 — GPU CopyResource更新 |
-| `giLock()` / `giUnlock()` | gl_interop.cpp | 新增 — 渲染前后锁定/解锁 |
-| `giShutdown()` | gl_interop.cpp | 新增 — 释放interop资源 |
-| `buildFragmentShader()` | main.cpp | 重写 — 组合frag_desktop_header+blackhole.glsl |
-| `main()` | main.cpp | 修改 — 全屏窗口+DXGI/interop集成+渲染循环 |
+| `WGC_Init()` | capture_wgc.cpp | 新增 — D3D11 + WGC 会话初始化 |
+| `WGC_GetFrame()` | capture_wgc.cpp | 新增 — TryGetNextFrame 获取捕获帧 |
+| `WGC_CopyToStaging()` | capture_wgc.cpp | 新增 — CopyResource + Map 到 CPU |
+| `WGC_UnmapStaging()` | capture_wgc.cpp | 新增 — Unmap staging |
+| `WGC_Release()` | capture_wgc.cpp | 新增 — 释放所有 WGC/D3D11 资源 |
+| `GLTex_Init()` | gl_texture.cpp | 新增 — GL 纹理 + 双 PBO 初始化 |
+| `GLTex_Upload()` | gl_texture.cpp | 新增 — PBO orphan+map+copy+上传 |
+| `GLTex_Resize()` | gl_texture.cpp | 新增 — 重建纹理/PBO（resize 场景） |
+| `GLTex_Shutdown()` | gl_texture.cpp | 新增 — 释放 GL 资源 |
+| `main()` | main.cpp | 重写 — 新管线集成 |
 
 ## 风险验证
 
 | 风险 | 状态 |
 |------|------|
-| DXGI AcquireNextFrame 超时 | ✅ 未出现，正常捕获 |
-| WGL interop Lock/Unlock 时序 | ✅ 程序稳定运行无崩溃 |
-| D3D11纹理格式匹配 | ✅ CopyResource 成功 |
-| full shader编译 | ✅ GLSL fallback 通过 |
-| 无CPU memcpy | ✅ 确认：仅 giUpdate(CopyResource) 无Map/memcpy |
-| 内存泄漏 | ⚠️ 需长时间运行验证 interop unlock 配对 |
+| WGC TryGetNextFrame 可用性 | ⚠️ 需运行时验证 |
+| CreateDirect3D11DeviceFromDXGIDevice dll 加载 | ⚠️ 需运行时验证 |
+| PBO 双缓冲上传性能 | ⚠️ 需运行时验证 |
+| WS_EX_LAYERED 透明效果 | ⚠️ 需运行时验证 |
+| resize 自动重建 | ⚠️ 需运行时验证 |
+| 内存泄漏 | ✅ 每个 Release/Shutdown 配对检查 |

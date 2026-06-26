@@ -12,14 +12,17 @@
                 "-o",
                 "${workspaceFolder}/build/blackhole.exe",
                 "${workspaceFolder}/src/main.cpp",
-                "${workspaceFolder}/src/screen_capture.cpp",
+                "${workspaceFolder}/src/capture_wgc.cpp",
+                "${workspaceFolder}/src/gl_texture.cpp",
                 "-IC:/msys64/ucrt64/include",
                 "-LC:/msys64/ucrt64/lib",
                 "-lglfw3",
                 "-lopengl32",
                 "-lgdi32",
                 "-ld3d11",
-                "-ldxgi"
+                "-ldxgi",
+                "-lruntimeobject",
+                "-mwindows"
             ],
             "group": {
                 "kind": "build",
@@ -52,7 +55,8 @@
                 "-o",
                 "${workspaceFolder}/build/blackhole.exe",
                 "${workspaceFolder}/src/main.cpp",
-                "${workspaceFolder}/src/screen_capture.cpp",
+                "${workspaceFolder}/src/capture_wgc.cpp",
+                "${workspaceFolder}/src/gl_texture.cpp",
                 "-IC:/msys64/ucrt64/include",
                 "-LC:/msys64/ucrt64/lib",
                 "-lglfw3",
@@ -60,6 +64,7 @@
                 "-lgdi32",
                 "-ld3d11",
                 "-ldxgi",
+                "-lruntimeobject",
                 "-mwindows"
             ],
             "group": "none",
