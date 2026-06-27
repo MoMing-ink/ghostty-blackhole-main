@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+﻿cmake_minimum_required(VERSION 3.20)
 project(blackhole-standalone LANGUAGES CXX RC)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -44,7 +44,7 @@ target_link_libraries(blackhole PRIVATE
 
 # Compile with MSYS2 GCC (ucrt64)
 if(MINGW)
-    target_compile_options(blackhole PRIVATE -mwindows)
+    target_compile_options(blackhole PRIVATE -mwindows -fexec-charset=UTF-8)
     # Fix windres popen bug on Windows
     set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} --use-temp-file")
 endif()
