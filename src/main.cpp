@@ -251,6 +251,25 @@ static LRESULT CALLBACK OverlayWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
     return DefSubclassProc(hwnd, msg, wp, lp);
 }
 
+// Check if user is watching video (fullscreen D3D app / presentation mode)
+static bool isWatchingVideo() {
+    // QUNS_RUNNING_D3D_FULL_SCREEN = 3, QUNS_PRESENTATION_MODE = 4
+    typedef enum { QUNS_NOT_PRESENT=1, QUNS_BUSY=2, QUNS_RUNNING_D3D_FULL_SCREEN=3,
+                   QUNS_PRESENTATION_MODE=4, QUNS_ACCEPTS_NOTIFICATIONS=5 } QUNS;
+    typedef HRESULT (WINAPI *PFN_SHQueryUserNotificationState)(QUNS*);
+    static PFN_SHQueryUserNotificationState pfn = nullptr;
+    if (!pfn) {
+        HMODULE shell = GetModuleHandleA("shell32.dll");
+        pfn = (PFN_SHQueryUserNotificationState)GetProcAddress(shell, "SHQueryUserNotificationState");
+    }
+    if (pfn) {
+        QUNS state;
+        if (SUCCEEDED(pfn(&state)) && (state == QUNS_RUNNING_D3D_FULL_SCREEN || state == QUNS_PRESENTATION_MODE))
+            return true;
+    }
+    return false;
+}
+
 static bool isIdle(DWORD ms) {
     LASTINPUTINFO lii = { sizeof(LASTINPUTINFO) };
     return GetLastInputInfo(&lii) && (GetTickCount() - lii.dwTime) >= ms;
@@ -366,8 +385,7 @@ int main(int argc, char* argv[]) {
             if (m == WM_TIMER && w == 1) {
                 auto* pSelf = (char*)GetWindowLongPtrA(h, GWLP_USERDATA);
                 auto* pCfg  = (BlackholeConfig*)(pSelf + MAX_PATH);
-                bool idle = isIdle((DWORD)pCfg->idleSec * 1000);
-                if (pCfg->mode == 0) {
+                bool idle = isIdle((DWORD)pCfg->idleSec * 1000) && (pCfg->videoAsIdle || !isWatchingVideo());               if (pCfg->mode == 0) {
                     if (!MonitorRunning()) MonitorSpawn(pSelf);
                 } else {
                     if (idle && !MonitorRunning()) MonitorSpawn(pSelf);

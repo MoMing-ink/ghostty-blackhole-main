@@ -1,4 +1,4 @@
-﻿// gui_config.h  ImGui config panel with preset editing
+// gui_config.h  ImGui config panel with preset editing
 #pragma once
 
 struct DiskPreset {
@@ -33,6 +33,7 @@ struct BlackholeConfig {
     DiskPreset presets[64];
     int   playMode        = 1;    // 0=顺序 1=循环 2=随机
     float slotSec        = 5.25f; // 每个预设播放秒数
+    bool  videoAsIdle     = false; // 播放视频时视为空闲
     bool  confirmed  = false;
 };
 

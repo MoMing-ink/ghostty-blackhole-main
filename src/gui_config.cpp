@@ -39,7 +39,7 @@ void SavePresetsToFile(const BlackholeConfig& cfg, const char names[64][64]) {
     FILE* f = fopen("blackhole_presets.txt", "w");
     if (!f) return;
     fprintf(f, "# Blackhole Presets v2\n");
-    fprintf(f, "%d %d %.3f %d\n", cfg.mode, cfg.idleSec, cfg.slotSec, cfg.playMode);
+    fprintf(f, "%d %d %.3f %d %d\n", cfg.mode, cfg.idleSec, cfg.slotSec, cfg.playMode, (int)cfg.videoAsIdle);
     fprintf(f, "%d\n", cfg.presetCount);
     for (int i = 0; i < cfg.presetCount; i++) {
         const DiskPreset& p = cfg.presets[i];
@@ -59,10 +59,11 @@ bool LoadPresetsFromFile(BlackholeConfig& cfg, char names[64][64]) {
     if (!fgets(line, sizeof(line), f)) { fclose(f); return false; } // skip comment
     if (!fgets(line, sizeof(line), f)) { fclose(f); return false; }
     // Try v2 format (mode idleSec slotSec playMode) else v1 (count only)
-    int mode=1, idle=300, pmode=1; float ss=5.25f;
-    int nf = sscanf(line, "%d %d %f %d", &mode, &idle, &ss, &pmode);
+    int mode=1, idle=300, pmode=1, vidAsIdle=0; float ss=5.25f;
+    int nf = sscanf(line, "%d %d %f %d %d", &mode, &idle, &ss, &pmode, &vidAsIdle);
     if (nf >= 3) {
         cfg.mode = mode; cfg.idleSec = idle; cfg.slotSec = ss; cfg.playMode = pmode;
+        cfg.videoAsIdle = (nf >= 5) ? (bool)vidAsIdle : false;
         if (!fgets(line, sizeof(line), f)) { fclose(f); return false; }
     } else {
         cfg.mode = 1; cfg.idleSec = 300; cfg.slotSec = 5.25f; cfg.playMode = 1;
@@ -150,6 +151,7 @@ bool GUI_ShowConfigPanel(BlackholeConfig& cfg) {
             ImGui::InputInt("超时(秒)", &cfg.idleSec, 10);
             if (cfg.idleSec < 1) cfg.idleSec = 1;
             if (cfg.idleSec > 1800) cfg.idleSec = 1800;
+            ImGui::Checkbox("播放视频视为空闲", &cfg.videoAsIdle);
         }
 
         ImGui::Separator();
