@@ -30,8 +30,9 @@ struct BlackholeConfig {
     float diskIncl   = -1.0f;
 
     int   presetCount = 0;
-    DiskPreset presets[16];
+    DiskPreset presets[64];
     bool  useCustomPresets = false;
+    int   playMode        = 0;    // 0=顺序 1=循环 2=随机
     bool  confirmed  = false;
 };
 

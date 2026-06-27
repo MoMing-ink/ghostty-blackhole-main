@@ -192,10 +192,28 @@ static bool buildFragmentShader(std::string& out) {
                     "DiskLook demoLook() {\n"
                     "    if (uPresetCount > 0) {\n"
                     "        int n = int(clamp(float(uPresetCount), 1.0, float(MAX_PRESETS)));\n"
-                    "        float u = mod(iTime, DEMO_SEC) / DEMO_SEC * float(n);\n"
-                    "        int   i = int(min(u, float(n) - 0.001));\n"
-                    "        float f = smoothstep(1.0 - DEMO_XFADE, 1.0, fract(u));\n"
-                    "        return mixLook(demoPreset(i), demoPreset((i + 1) % n), f);\n"
+                    "        float f; int i0, i1;\n"
+                    "        if (uPlayMode == 0) {\n"
+                    "            // Sequential: no time wrap, stop at last\n"
+                    "            float u = iTime / DEMO_SEC * float(n);\n"
+                    "            f = smoothstep(1.0 - DEMO_XFADE, 1.0, fract(u));\n"
+                    "            i0 = int(min(u, float(n) - 0.001));\n"
+                    "            i1 = int(min(u + 1.0, float(n) - 0.001));\n"
+                    "        } else if (uPlayMode == 2) {\n"
+                    "            // Random: no time wrap, infinite unique\n"
+                    "            float u = iTime / DEMO_SEC * float(n);\n"
+                    "            f = smoothstep(1.0 - DEMO_XFADE, 1.0, fract(u));\n"
+                    "            int slot = int(u);\n"
+                    "            i0 = int(fract(sin(float(slot) * 127.1 + 311.7) * 43758.5453) * float(n));\n"
+                    "            i1 = int(fract(sin(float(slot + 1) * 127.1 + 311.7) * 43758.5453) * float(n));\n"
+                    "        } else {\n"
+                    "            // Loop: wrap time, cycle forever\n"
+                    "            float u = mod(iTime, DEMO_SEC) / DEMO_SEC * float(n);\n"
+                    "            f = smoothstep(1.0 - DEMO_XFADE, 1.0, fract(u));\n"
+                    "            i0 = int(u) % n;\n"
+                    "            i1 = (int(u) + 1) % n;\n"
+                    "        }\n"
+                    "        return mixLook(demoPreset(i0), demoPreset(i1), f);\n"
                     "    } else {\n"
                     "        float u = mod(iTime, DEMO_SEC) / DEMO_SEC * float(DEMO_N);\n"
                     "        int   i = int(min(u, float(DEMO_N) - 0.001));\n"
@@ -211,6 +229,13 @@ static bool buildFragmentShader(std::string& out) {
     size_t pos = body.find("#define SIZE_MODE MODE_TOKENS");
     if (pos != std::string::npos)
         body.replace(pos, 29, "#define SIZE_MODE MODE_DEMO");
+
+    // Remove time wrapping from hole size: grow to full and stay there
+    {
+        size_t lp = body.find("mod(iTime, DEMO_SEC) / DEMO_GROW_SEC");
+        if (lp != std::string::npos)
+            body.replace(lp, 36, "iTime / DEMO_GROW_SEC");
+    }
 
     out = header + "\n// ===== blackhole.glsl =====" + body +
           "\nvoid main() { vec4 c; vec2 fc = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y); mainImage(c, fc); fragColor = c; }\n";
@@ -231,6 +256,7 @@ static bool isIdle(DWORD ms) {
 
 // ---- Main ----
 int main(int argc, char* argv[]) {
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
     // Set working directory to project root
     {
         char p[MAX_PATH]; GetModuleFileNameA(nullptr, p, MAX_PATH);
@@ -324,6 +350,7 @@ int main(int argc, char* argv[]) {
     GLint loc_uSP  = gl_GetUniformLocation(program, "uSpeed");
     GLint loc_uSG  = gl_GetUniformLocation(program, "uStarGain");
     GLint loc_uDI  = gl_GetUniformLocation(program, "uDiskIncl");
+    GLint loc_uPM  = gl_GetUniformLocation(program, "uPlayMode");
     // Preset uniform locations
     GLint loc_uPC   = gl_GetUniformLocation(program, "uPresetCount");
     GLint loc_uPT   = gl_GetUniformLocation(program, "uPresetTemp");
@@ -410,10 +437,11 @@ int main(int argc, char* argv[]) {
         gl_Uniform1f(loc_uSP, cfg.spd);
         gl_Uniform1f(loc_uSG, cfg.starGain);
         gl_Uniform1f(loc_uDI, cfg.diskIncl);
+        gl_Uniform1i(loc_uPM, cfg.playMode);
         // Upload preset uniforms
         gl_Uniform1i(loc_uPC, cfg.useCustomPresets ? cfg.presetCount : 0);
         {
-            float buf[16];
+            float buf[64];
             for (int i = 0; i < cfg.presetCount; i++) buf[i] = cfg.presets[i].temp;
             gl_Uniform1fv(loc_uPT, cfg.presetCount, buf);
             for (int i = 0; i < cfg.presetCount; i++) buf[i] = cfg.presets[i].incl;

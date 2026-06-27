@@ -35,7 +35,7 @@ static char       g_clipName[64] = "";
 static bool       g_hasClipboard = false;
 
 // ---- Save/Load presets to local file ----
-void SavePresetsToFile(const BlackholeConfig& cfg, const char names[16][64]) {
+void SavePresetsToFile(const BlackholeConfig& cfg, const char names[64][64]) {
     FILE* f = fopen("blackhole_presets.txt", "w");
     if (!f) return;
     fprintf(f, "# Blackhole Presets\n");
@@ -51,14 +51,14 @@ void SavePresetsToFile(const BlackholeConfig& cfg, const char names[16][64]) {
     fclose(f);
 }
 
-bool LoadPresetsFromFile(BlackholeConfig& cfg, char names[16][64]) {
+bool LoadPresetsFromFile(BlackholeConfig& cfg, char names[64][64]) {
     FILE* f = fopen("blackhole_presets.txt", "r");
     if (!f) return false;
     char line[256];
     if (!fgets(line, sizeof(line), f)) { fclose(f); return false; }
     if (!fgets(line, sizeof(line), f)) { fclose(f); return false; }
     int count = atoi(line);
-    if (count < 1 || count > 16) { fclose(f); return false; }
+    if (count < 1 || count > 64) { fclose(f); return false; }
     for (int i = 0; i < count; i++) {
         if (!fgets(line, sizeof(line), f)) break;
         line[strcspn(line, "\r\n")] = 0;
@@ -101,7 +101,7 @@ bool GUI_ShowConfigPanel(BlackholeConfig& cfg) {
     ImGui_ImplGlfw_InitForOpenGL(win, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    char presetName[16][64] = {};
+    char presetName[64][64] = {};
     for (int i = 0; i < cfg.presetCount && i < 8; i++)
         strcpy(presetName[i], PRESET_NAMES[i]);
     for (int i = 8; i < cfg.presetCount; i++)
@@ -137,6 +137,17 @@ bool GUI_ShowConfigPanel(BlackholeConfig& cfg) {
         }
 
         ImGui::Separator();
+        const char* playModes[] = { "顺序播放", "循环播放", "随机播放" };
+        ImGui::Combo("播放模式", &cfg.playMode, playModes, 3);
+        if (cfg.playMode == 0) {
+            ImGui::TextDisabled("  播完停留在最后一个");
+        } else if (cfg.playMode == 1) {
+            ImGui::TextDisabled("  播完回到第一个");
+        } else {
+            ImGui::TextDisabled("  随机抽取");
+        }
+
+        ImGui::Separator();
         ImGui::Text("预设列表 (%d个)", cfg.presetCount);
 
         for (int i = 0; i < cfg.presetCount; i++) {
@@ -147,7 +158,7 @@ bool GUI_ShowConfigPanel(BlackholeConfig& cfg) {
         }
 
         ImGui::Spacing();
-        if (ImGui::Button("+ 添加", ImVec2(80,25)) && cfg.presetCount < 16) {
+        if (ImGui::Button("+ 添加", ImVec2(80,25)) && cfg.presetCount < 64) {
             cfg.presets[cfg.presetCount] = cfg.presets[selPreset];
             snprintf(presetName[cfg.presetCount], 64, "Custom %d", cfg.presetCount+1);
             cfg.presetCount++;
@@ -221,10 +232,13 @@ bool GUI_ShowConfigPanel(BlackholeConfig& cfg) {
         }
         ImGui::SameLine();
         if (ImGui::Button("粘贴", ImVec2(45, 0))) {
-            if (g_hasClipboard) {
-                p = g_clipboard;
-                strncpy(presetName[selPreset], g_clipName, 63);
-                presetName[selPreset][63] = 0;
+            if (g_hasClipboard && cfg.presetCount < 64) {
+                int idx = cfg.presetCount;
+                cfg.presets[idx] = g_clipboard;
+                strncpy(presetName[idx], g_clipName, 63);
+                presetName[idx][63] = 0;
+                cfg.presetCount++;
+                selPreset = idx;
             }
         }
         if (g_hasClipboard) {
