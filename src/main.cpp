@@ -256,6 +256,38 @@ static bool isIdle(DWORD ms) {
     return GetLastInputInfo(&lii) && (GetTickCount() - lii.dwTime) >= ms;
 }
 
+// ---- Renderer process management (monitor mode) ----
+static PROCESS_INFORMATION g_pi = {};
+
+static void MonitorSpawn(const char* selfPath) {
+    if (g_pi.hProcess) return;
+    STARTUPINFOA si = {}; si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    char cmd[MAX_PATH + 16];
+    snprintf(cmd, sizeof(cmd), "\"%s\" --render", selfPath);
+    if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &g_pi))
+        CloseHandle(g_pi.hThread);
+}
+
+static void MonitorKill() {
+    if (g_pi.hProcess) {
+        TerminateProcess(g_pi.hProcess, 0);
+        CloseHandle(g_pi.hProcess);
+        g_pi.hProcess = NULL;
+    }
+}
+
+static bool MonitorRunning() {
+    if (!g_pi.hProcess) return false;
+    DWORD code;
+    if (GetExitCodeProcess(g_pi.hProcess, &code) && code == STILL_ACTIVE)
+        return true;
+    CloseHandle(g_pi.hProcess);
+    g_pi.hProcess = NULL;
+    return false;
+}
+
 // ---- Main ----
 int main(int argc, char* argv[]) {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -268,11 +300,43 @@ int main(int argc, char* argv[]) {
         SetCurrentDirectoryA(p);
     }
 
+    bool isRenderer = (argc >= 2 && strcmp(argv[1], "--render") == 0);
+
     if (!glfwInit()) { fprintf(stderr, "glfwInit failed\n"); return 1; }
 
-    // ---- ImGui Config Panel ----
     BlackholeConfig cfg;
-    if (!GUI_ShowConfigPanel(cfg)) { glfwTerminate(); return 0; }
+
+    if (isRenderer) {
+        // === RENDERER: load config from file ===
+        char names[64][64];
+        if (!LoadPresetsFromFile(cfg, names))
+            InitDefaultPresets(cfg);
+        cfg.mode = 0;
+    } else {
+        // === CONFIG + MONITOR ===
+        if (!GUI_ShowConfigPanel(cfg)) { glfwTerminate(); return 0; }
+        // After confirm, save config, spawn renderer, enter monitor loop
+        char names[64][64] = {};
+        SavePresetsToFile(cfg, names);
+        char selfPath[MAX_PATH];
+        GetModuleFileNameA(NULL, selfPath, MAX_PATH);
+        glfwTerminate();
+        fprintf(stderr, "[Monitor] mode=%d idleSec=%d\n", cfg.mode, cfg.idleSec);
+        // mode 0: start renderer immediately and keep alive
+        if (cfg.mode == 0) MonitorSpawn(selfPath);
+        while (true) {
+            bool idle = isIdle((DWORD)cfg.idleSec * 1000);
+            if (cfg.mode == 0) {
+                if (!MonitorRunning()) MonitorSpawn(selfPath);
+            } else {
+                if (idle && !MonitorRunning()) MonitorSpawn(selfPath);
+                if (!idle && MonitorRunning())  MonitorKill();
+            }
+            Sleep(5000);
+        }
+        MonitorKill();
+        return 0;
+    }
 
     // ---- Create fullscreen black hole window ----
     glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
@@ -401,19 +465,7 @@ int main(int argc, char* argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GL_TRUE);
 
-        // Idle mode: unified pipeline, only opacity + FPS differ
-        static bool idleWasVisible = false;
-        bool userActive = (cfg.mode == 1) && !isIdle((DWORD)cfg.idleSec * 1000);
-        if (cfg.mode == 1) {
-            if (userActive) {
-                glfwSetWindowOpacity(window, 0.0f);
-                idleWasVisible = false;
-            } else {
-                glfwSetWindowOpacity(window, 1.0f);
-                if (!idleWasVisible) idleStart = (float)(glfwGetTime() - startTime);
-                idleWasVisible = true;
-            }
-        }
+
 
         int fbW, fbH; glfwGetFramebufferSize(window, &fbW, &fbH);
         glViewport(0, 0, fbW, fbH);
@@ -501,8 +553,6 @@ int main(int argc, char* argv[]) {
         gl_UseProgram(0);
 
         glfwSwapBuffers(window);
-
-        if (userActive) Sleep(100);
 
         frames++;
         if (now - lastFps >= 1.0) {

@@ -1,39 +1,34 @@
-﻿# Debug State — Blackhole v9: 最终稳定版（统一渲染管线）
+﻿# Debug State — Blackhole v10: 配置器 + 渲染器 进程分离
 
 ## 当前状态
 ### 编译 ✓ - 零警告零错误 (2026-06-27)
 
-## 核心修复：统一渲染管线
-
-### 问题根源
-之前的 idle/active 使用**两套不同的渲染路径**，导致 OpenGL 状态在切换时错位：
-
-| 状态 | 旧路径 | 问题 |
-|------|--------|------|
-| active | glClear + swap + continue | 跳过 capture/shader |
-| idle | capture + shader + swap | 完整路径 |
-
-### 最终架构：单一路径，只改参数
+## 架构：双进程分离
 
 `
-          ┌─ active: opacity=0, Sleep(100) ─┐
-          │                                  │
-glfwPollEvents → capture → shader → swap ───┤
-          │                                  │
-          └─ idle: opacity=1, 全速 ──────────┘
+blackhole.exe             → 配置页面 + 空闲监控（Monitor）
+blackhole.exe --render    → 黑洞渲染（Renderer）
 `
 
-- **渲染管线**：主动/空闲完全一致（capture → shader → draw → swap）
-- **区别仅在于**：opacity（0 vs 1）和 Sleep（100ms vs 0）
-- **不 hide、不 continue、不分裂管线**
+### 流程
+`
+用户打开 blackhole.exe
+    ↓
+配置页面 (ImGui)
+    ↓ 点击"启动"
+保存配置 → 启动 blackhole.exe --render → 进入监控循环
+    ↓                                    ↓
+每5秒检测空闲                          读取配置渲染黑洞
+    ↓                                    ↓
+空闲 → 启动渲染器                       ESC → 退出
+活跃 → 关闭渲染器                       被监控关闭 → 退出
+`
+
+### 关键点
+- 渲染器永不处理空闲逻辑（由监控器管理）
+- 监控器不开 OpenGL 窗口（纯后台进程）
+- 进程级隔离：无 DWM/opacity/show-hide 问题
+- 活跃时渲染器进程不存在 → 零 GPU/CPU 负载
 
 ## 修改文件
-- src/main.cpp — 空闲模式重构为统一管线
-
-## 修改状态
-| 步骤 | 状态 |
-|------|------|
-| 黄边框修复 | ✅ 已完成 |
-| 黑屏修复（统一管线） | ✅ 已完成 |
-| 黑洞参数滑块化 | ✅ 已完成 |
-| 编译验证 | ✅ 0警告0错误 |
+- src/main.cpp — 进程拆分 + 监控循环
