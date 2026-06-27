@@ -128,6 +128,14 @@ blackhole/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/build
 .PHONY : blackhole/fast
 
+resource.obj: resource.rc.obj
+.PHONY : resource.obj
+
+# target to build an object file
+resource.rc.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/resource.rc.obj
+.PHONY : resource.rc.obj
+
 src/capture_dxgi.obj: src/capture_dxgi.cpp.obj
 .PHONY : src/capture_dxgi.obj
 
@@ -401,6 +409,7 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... blackhole
+	@echo ... resource.obj
 	@echo ... src/capture_dxgi.obj
 	@echo ... src/capture_dxgi.i
 	@echo ... src/capture_dxgi.s

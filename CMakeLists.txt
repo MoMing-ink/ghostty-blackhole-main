@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(blackhole-standalone LANGUAGES CXX)
+project(blackhole-standalone LANGUAGES CXX RC)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,6 +24,7 @@ add_executable(blackhole
     src/imgui/imgui_impl_glfw.cpp
     src/imgui/imgui_impl_opengl3.cpp
     src/gl_texture.cpp
+    resource.rc
 )
 
 target_include_directories(blackhole PRIVATE
@@ -44,4 +45,6 @@ target_link_libraries(blackhole PRIVATE
 # Compile with MSYS2 GCC (ucrt64)
 if(MINGW)
     target_compile_options(blackhole PRIVATE -mwindows)
+    # Fix windres popen bug on Windows
+    set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} --use-temp-file")
 endif()

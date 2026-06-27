@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/blackhole.dir/resource.rc.obj"
   "CMakeFiles/blackhole.dir/src/capture_dxgi.cpp.obj"
   "CMakeFiles/blackhole.dir/src/capture_dxgi.cpp.obj.d"
   "CMakeFiles/blackhole.dir/src/capture_wgc.cpp.obj"
@@ -28,6 +29,6 @@ file(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
+foreach(lang CXX RC)
   include(CMakeFiles/blackhole.dir/cmake_clean_${lang}.cmake OPTIONAL)
 endforeach()

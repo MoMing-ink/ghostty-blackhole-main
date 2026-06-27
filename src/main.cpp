@@ -347,7 +347,7 @@ int main(int argc, char* argv[]) {
         nid.cbSize = sizeof(nid);
         nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
         nid.uCallbackMessage = WM_TRAYICON;
-        nid.hIcon = LoadIconA(NULL, (LPCSTR)IDI_APPLICATION);
+        nid.hIcon = LoadIconW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(100));
         strcpy(nid.szTip, "Black Hole Monitor");
 
         // Create hidden message-only window for tray
