@@ -1,30 +1,44 @@
-﻿# Debug State — Blackhole v10: 最终状态
+﻿# Debug State — Blackhole: GLFW → Win32+WGL 迁移 完成
 
 ## 当前状态
-编译 ✅ 零警告零错误 (2026-06-27)
-所有视频检测功能正常
+编译 ✅ 零警告零错误 (2026-06-28)
 
-## 最终修改文件
+## 本次修改总结
 
-### src/main.cpp
-| 修改 | 说明 |
+### 架构变更
+```
+修改前: GLFW(窗口+OpenGL上下文) + WGC(捕获) + OpenGL(渲染)
+修改后: Win32+WGL(窗口+OpenGL上下文) + WGC(捕获) + OpenGL(渲染)
+```
+
+### 新增文件
+| 文件 | 说明 |
 |------|------|
-| GetProcessName | Unicode API (PROCESSENTRY32W) + UTF-8 输出 + 终止符修复 |
-| isVideo 匹配列表 | 扩充中英文进程名：哔哩哔哩/爱奇艺/优酷/芒果/抖音/快手/腾讯视频 + nvidia |
-| Method 3 音频匹配 | 统一进程名匹配（去掉 isBrowser 分支），兼容多进程架构 |
-| UWP 窗口标题检测 | GetWindowTextW + wcsstr，检测 applicationframehost.exe 壳内媒体应用 |
-| UWP 音频检测 | 匹配所有音频会话（非按进程名过滤） |
+| src/win32_gl.h | Win32窗口+WGL OpenGL上下文模块头文件 |
+| src/win32_gl.cpp | 实现：窗口类注册、WGL上下文创建、DWM属性控制、消息循环 |
 
-### CMakeLists.txt
-| 修改 | 说明 |
-|------|------|
-| -fexec-charset=UTF-8 | 中文字符串编译为 UTF-8 |
-| -mwindows → link options | 双击 exe 不弹控制台 |
+### 修改文件
+| 文件 | 修改内容 |
+|------|----------|
+| src/main.cpp | 渲染器路径：GLFW → Win32GL；glfwInit移到配置面板分支 |
+| CMakeLists.txt | 添加 win32_gl.cpp 到编译源列表 |
 
-### README.md
-| 新增 | 说明 |
-|------|------|
-| 空闲检测原理 | 三层检测机制流程图 |
-| 匹配策略 | 进程名匹配、UWP 特殊处理、编码兼容 |
-| 支持的应用表 | 浏览器/国内平台/本地播放器/UWP |
-| 桌面壁纸说明 | 壁纸音频不阻止黑洞触发 |
+### 核心变更点
+1. **窗口创建**: 直接使用 CreateWindowExW，从创建开始就设置 WS_EX_NOACTIVATE / TOOLWINDOW / TRANSPARENT / NOREDIRECTIONBITMAP
+2. **OpenGL上下文**: WGL两步法创建（临时上下文→wglCreateContextAttribsARB→3.3兼容上下文）
+3. **消息循环**: PeekMessage / DispatchMessage 替代 glfwPollEvents
+4. **帧缓冲交换**: SwapBuffers(hdc) 替代 glfwSwapBuffers
+5. **计时器**: QueryPerformanceCounter 替代 glfwGetTime
+6. **GL函数加载**: Win32GL_GetProcAddress(wglGetProcAddress + opengl32.dll回退) 替代 glfwGetProcAddress
+
+### 未修改模块
+- 配置面板（ImGui + GLFW）：保持不变
+- 空闲检测（isWatchingVideo, isIdle）
+- 监视器/托盘图标（MonitorSpawn, MonitorKill）
+- WGC捕获（capture_wgc）
+- Shader编译和渲染逻辑
+- GLTexture模块
+
+### 下一步
+- 第二/三阶段：Renderer 常驻化（永久进程，通过 IPC 通信）
+- 考虑 D3D11 渲染层替代 OpenGL

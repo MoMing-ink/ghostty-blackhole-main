@@ -34,6 +34,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/imgui/imgui_tables.cpp" "CMakeFiles/blackhole.dir/src/imgui/imgui_tables.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/imgui/imgui_tables.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/imgui/imgui_widgets.cpp" "CMakeFiles/blackhole.dir/src/imgui/imgui_widgets.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/imgui/imgui_widgets.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/main.cpp" "CMakeFiles/blackhole.dir/src/main.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/main.cpp.obj.d"
+  "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/win32_gl.cpp" "CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -400,6 +400,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/win32_gl.obj: src/win32_gl.cpp.obj
+.PHONY : src/win32_gl.obj
+
+# target to build an object file
+src/win32_gl.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj
+.PHONY : src/win32_gl.cpp.obj
+
+src/win32_gl.i: src/win32_gl.cpp.i
+.PHONY : src/win32_gl.i
+
+# target to preprocess a source file
+src/win32_gl.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_gl.cpp.i
+.PHONY : src/win32_gl.cpp.i
+
+src/win32_gl.s: src/win32_gl.cpp.s
+.PHONY : src/win32_gl.s
+
+# target to generate assembly for a file
+src/win32_gl.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_gl.cpp.s
+.PHONY : src/win32_gl.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -443,6 +467,9 @@ help:
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... src/win32_gl.obj
+	@echo ... src/win32_gl.i
+	@echo ... src/win32_gl.s
 .PHONY : help
 
 

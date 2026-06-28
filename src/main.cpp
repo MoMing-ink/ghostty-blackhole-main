@@ -19,6 +19,7 @@
 #include "capture_dxgi.h"
 #include "gl_texture.h"
 #include "gui_config.h"
+#include "win32_gl.h"
 
 #ifndef DWMWA_BORDER_COLOR
 #define DWMWA_BORDER_COLOR 34  // Windows 11 accent border (not in SDK 8.1)
@@ -75,7 +76,7 @@ DECL_GL_FUNC(void,   DeleteBuffers, (GLsizei, const GLuint*));
 DECL_GL_FUNC(void,   DeleteProgram, (GLuint));
 
 #define LOAD_GL_FUNC(name) do { \
-    gl_##name = (PFN_##name##_PROC)glfwGetProcAddress("gl" #name); \
+    gl_##name = (PFN_##name##_PROC)Win32GL_GetProcAddress("gl" #name); \
     if (!gl_##name) { fprintf(stderr, "Failed to load gl" #name "\n"); return false; } \
 } while(0)
 
@@ -246,14 +247,6 @@ static bool buildFragmentShader(std::string& out) {
     out = header + "\n// ===== blackhole.glsl =====" + body +
           "\nvoid main() { vec4 c; vec2 fc = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y); mainImage(c, fc); fragColor = c; }\n";
     return true;
-}
-
-// Window subclass: minimal DWM interference (no repeated attribute flush)
-static LRESULT CALLBACK OverlayWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR, DWORD_PTR) {
-    if (msg == WM_NCACTIVATE) return FALSE;
-    if (msg == WM_MOUSEACTIVATE) return MA_NOACTIVATEANDEAT;
-    if (msg == WM_NCCALCSIZE) return 0;
-    return DefSubclassProc(hwnd, msg, wp, lp);
 }
 
 // IAudioMeterInformation GUID (missing from MinGW headers)
@@ -474,8 +467,6 @@ int main(int argc, char* argv[]) {
 
     bool isRenderer = (argc >= 2 && strcmp(argv[1], "--render") == 0);
 
-    if (!glfwInit()) { fprintf(stderr, "glfwInit failed\n"); return 1; }
-
     BlackholeConfig cfg;
 
     if (isRenderer) {
@@ -486,6 +477,7 @@ int main(int argc, char* argv[]) {
         cfg.mode = 0;
     } else {
         // === CONFIG + MONITOR ===
+        if (!glfwInit()) { fprintf(stderr, "glfwInit failed\n"); return 1; }
         if (!GUI_ShowConfigPanel(cfg)) { glfwTerminate(); return 0; }
         // After confirm, save config, spawn renderer, enter monitor loop
         char names[64][64] = {};
@@ -559,78 +551,36 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // ---- Create fullscreen black hole window ----
-    glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
-    glfwWindowHint(GLFW_DECORATED, GL_FALSE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-    glfwWindowHint(GLFW_MOUSE_PASSTHROUGH, GLFW_TRUE);
 
-    GLFWmonitor* mon = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(mon);
+    // ---- Create fullscreen black hole window via Win32 + WGL ----
     char winTitle[64];
     snprintf(winTitle, sizeof(winTitle), "BH_%u", GetCurrentProcessId());
-    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, winTitle, nullptr, nullptr);
-    glfwSetWindowPos(window, 0, 0);
-    if (!window) { glfwTerminate(); return 1; }
+    Win32GL wgl;
+    if (!Win32GL_Init(wgl, winTitle, 0, 0)) return 1;
 
-    {
-        HWND hwnd = glfwGetWin32Window(window);
-        // Strip all frame/border styles
-        DWORD style = GetWindowLong(hwnd, GWL_STYLE);
-        style &= ~(WS_BORDER | WS_DLGFRAME | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU);
-        SetWindowLong(hwnd, GWL_STYLE, style);
-        // Prevent DWM redirection bitmap (blocks accent layer cache)
-        LONG ex = GetWindowLong(hwnd, GWL_EXSTYLE);
-        ex |= WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP;
-        SetWindowLong(hwnd, GWL_EXSTYLE, ex);
-        // Disable blur-behind (prevents DWM accent trigger)
-        DWM_BLURBEHIND bb = {};
-        bb.dwFlags = DWM_BB_ENABLE;
-        bb.fEnable = FALSE;
-        DwmEnableBlurBehindWindow(hwnd, &bb);
-        // Accent border = transparent
-        COLORREF bc = 0;
-        DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &bc, sizeof(bc));
-        DWMNCRENDERINGPOLICY ncrp = DWMNCRP_DISABLED;
-        DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
-        SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
-        SetWindowSubclass(hwnd, OverlayWndProc, 1, 0);
-        DwmFlush();  // flush DWM attributes before showing
-        SetWindowPos(hwnd, HWND_TOPMOST, 0,0,0,0, SWP_NOMOVE|SWP_NOSIZE);
-        ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-        DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, &bc, sizeof(bc));
-        DwmFlush();  // flush after show to clear any cached accent
-    }
-
-    glfwMakeContextCurrent(window);
     setbuf(stderr, NULL);
-    glfwSwapInterval(1);
 
     fprintf(stderr, "OpenGL %s, GLSL %s\n", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
-    if (!loadGLFunctions()) { glfwTerminate(); return 1; }
+    if (!loadGLFunctions()) { Win32GL_Shutdown(wgl); return 1; }
 
     // ---- Capture (WGC default) ----
     WGCCapture wgc; DXGICapture dxgi;
     bool useWGC = true;
     int capW=0, capH=0; bool capOk;
     capOk = WGC_Init(wgc); capW=wgc.width; capH=wgc.height;
-    if (!capOk) { glfwTerminate(); return 1; }
+    if (!capOk) { Win32GL_Shutdown(wgl); return 1; }
 
     GLTextureUpload glTex;
-    if (!GLTex_Init(glTex, capW, capH)) { WGC_Release(wgc); glfwTerminate(); return 1; }
+    if (!GLTex_Init(glTex, capW, capH)) { WGC_Release(wgc); Win32GL_Shutdown(wgl); return 1; }
 
     // ---- Shader ----
     std::string vertSrc = readFile("shaders/vert.glsl");
     std::string fragSrc;
     if (vertSrc.empty() || !buildFragmentShader(fragSrc)) {
-        GLTex_Shutdown(glTex); WGC_Release(wgc); glfwTerminate(); return 1;
+        GLTex_Shutdown(glTex); WGC_Release(wgc); Win32GL_Shutdown(wgl); return 1;
     }
     GLuint program = createProgram(vertSrc, fragSrc);
-    if (!program) { GLTex_Shutdown(glTex); WGC_Release(wgc); glfwTerminate(); return 1; }
+    if (!program) { GLTex_Shutdown(glTex); WGC_Release(wgc); Win32GL_Shutdown(wgl); return 1; }
 
     // Full-screen quad
     float verts[] = { -1,-1, 1,-1, -1,1, 1,1 };
@@ -647,7 +597,6 @@ int main(int argc, char* argv[]) {
     GLint locTime  = gl_GetUniformLocation(program, "iTime");
     GLint locDate  = gl_GetUniformLocation(program, "iDate");
     GLint locCh0   = gl_GetUniformLocation(program, "iChannel0");
-    // GUI uniform locations (set once)
     GLint loc_uHR  = gl_GetUniformLocation(program, "uHoleRadius");
     GLint loc_uDG  = gl_GetUniformLocation(program, "uDiskGain");
     GLint loc_uDT  = gl_GetUniformLocation(program, "uDiskTemp");
@@ -657,7 +606,6 @@ int main(int argc, char* argv[]) {
     GLint loc_uDI  = gl_GetUniformLocation(program, "uDiskIncl");
     GLint loc_uPM  = gl_GetUniformLocation(program, "uPlayMode");
     GLint loc_uSlot = gl_GetUniformLocation(program, "uSlotSec");
-    // Preset uniform locations
     GLint loc_uPC   = gl_GetUniformLocation(program, "uPresetCount");
     GLint loc_uPT   = gl_GetUniformLocation(program, "uPresetTemp");
     GLint loc_uPI   = gl_GetUniformLocation(program, "uPresetIncl");
@@ -677,22 +625,15 @@ int main(int argc, char* argv[]) {
     gl_UseProgram(0);
 
     // ---- Main loop ----
-    double startTime = glfwGetTime();
+    double startTime = Win32GL_GetTime();
     float idleStart = 0.0f;
     int frames = 0; double lastFps = startTime;
     char title[128];
 
-    // DXGI pairing: acquire first frame before loop
     if (!useWGC) { ID3D11Texture2D* f = DXGI_GetFrame(dxgi); if (f) f->Release(); }
 
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GL_TRUE);
-
-
-
-        int fbW, fbH; glfwGetFramebufferSize(window, &fbW, &fbH);
+    while (Win32GL_PollEvents(wgl)) {
+        int fbW, fbH; Win32GL_GetFramebufferSize(wgl, &fbW, &fbH);
         glViewport(0, 0, fbW, fbH);
 
         // Capture
@@ -713,10 +654,9 @@ int main(int argc, char* argv[]) {
             frame->Release();
         }
 
-        double now = glfwGetTime();
+        double now = Win32GL_GetTime();
         float t = (float)(now - startTime);
         float ep = (float)time(nullptr);
-
 
         glClearColor(0,0,0,1); glClear(GL_COLOR_BUFFER_BIT);
         gl_UseProgram(program);
@@ -728,7 +668,6 @@ int main(int argc, char* argv[]) {
         gl_Uniform1f(locTime, t - idleStart);
         gl_Uniform4f(locDate, 0,0,0,ep);
 
-        // GUI parameters (set every frame 闂?cheap uniform calls)
         gl_Uniform1f(loc_uHR, cfg.holeRadius);
         gl_Uniform1f(loc_uDG, cfg.diskGain);
         gl_Uniform1f(loc_uDT, cfg.diskTemp);
@@ -738,7 +677,6 @@ int main(int argc, char* argv[]) {
         gl_Uniform1f(loc_uDI, cfg.diskIncl);
         gl_Uniform1i(loc_uPM, cfg.playMode);
         gl_Uniform1f(loc_uSlot, cfg.slotSec);
-        // Upload preset uniforms
         gl_Uniform1i(loc_uPC, cfg.presetCount);
         {
             float buf[64];
@@ -777,12 +715,12 @@ int main(int argc, char* argv[]) {
         gl_BindVertexArray(0);
         gl_UseProgram(0);
 
-        glfwSwapBuffers(window);
+        Win32GL_SwapBuffers(wgl);
 
         frames++;
         if (now - lastFps >= 1.0) {
             snprintf(title, sizeof(title), "Black Hole [%d FPS]", frames);
-            glfwSetWindowTitle(window, title);
+            Win32GL_SetWindowTitle(wgl, title);
             frames=0; lastFps=now;
         }
     }
@@ -792,6 +730,6 @@ int main(int argc, char* argv[]) {
     gl_DeleteProgram(program);
     gl_DeleteVertexArrays(1, &vao);
     gl_DeleteBuffers(1, &vbo);
-    glfwTerminate();
+    Win32GL_Shutdown(wgl);
     return 0;
 }

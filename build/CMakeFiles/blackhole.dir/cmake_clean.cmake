@@ -22,6 +22,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/blackhole.dir/src/imgui/imgui_widgets.cpp.obj.d"
   "CMakeFiles/blackhole.dir/src/main.cpp.obj"
   "CMakeFiles/blackhole.dir/src/main.cpp.obj.d"
+  "CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj"
+  "CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj.d"
   "blackhole.exe"
   "blackhole.exe.manifest"
   "blackhole.pdb"
