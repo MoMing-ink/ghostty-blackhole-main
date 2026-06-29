@@ -13,6 +13,7 @@ set(CMAKE_DEPENDS_CHECK_RC
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_RC
+  "BLACKHOLE_USE_D3D11"
   "GLFW_DLL"
   )
 
@@ -25,6 +26,7 @@ set(CMAKE_RC_TARGET_INCLUDE_PATH
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/capture_dxgi.cpp" "CMakeFiles/blackhole.dir/src/capture_dxgi.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/capture_dxgi.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/capture_wgc.cpp" "CMakeFiles/blackhole.dir/src/capture_wgc.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/capture_wgc.cpp.obj.d"
+  "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/d3d11_renderer.cpp" "CMakeFiles/blackhole.dir/src/d3d11_renderer.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/d3d11_renderer.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/gl_texture.cpp" "CMakeFiles/blackhole.dir/src/gl_texture.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/gl_texture.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/gui_config.cpp" "CMakeFiles/blackhole.dir/src/gui_config.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/gui_config.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/imgui/imgui.cpp" "CMakeFiles/blackhole.dir/src/imgui/imgui.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/imgui/imgui.cpp.obj.d"
@@ -35,6 +37,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/imgui/imgui_widgets.cpp" "CMakeFiles/blackhole.dir/src/imgui/imgui_widgets.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/imgui/imgui_widgets.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/main.cpp" "CMakeFiles/blackhole.dir/src/main.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/main.cpp.obj.d"
   "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/win32_gl.cpp" "CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/win32_gl.cpp.obj.d"
+  "C:/Test_Program/VS_Code/ghostty-blackhole-main/src/win32_window.cpp" "CMakeFiles/blackhole.dir/src/win32_window.cpp.obj" "gcc" "CMakeFiles/blackhole.dir/src/win32_window.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

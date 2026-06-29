@@ -202,6 +202,7 @@ bool Win32GL_Init(Win32GL& wgl, const char* title, int width, int height) {
     SetWindowPos(wgl.hwnd, HWND_TOPMOST, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     ShowWindow(wgl.hwnd, SW_SHOWNOACTIVATE);
+    ShowCursor(FALSE);  // 隐藏系统光标，只保留 WGC 捕获中被黑洞扭曲的光标
 
     // 11. 窗口状态结构
     Win32GLState* state = new Win32GLState();
@@ -308,6 +309,7 @@ void Win32GL_Shutdown(Win32GL& wgl) {
         ReleaseDC(wgl.hwnd, wgl.hdc);
         wgl.hdc = nullptr;
     }
+    ShowCursor(TRUE);  // 恢复系统光标
     if (wgl.hwnd) {
         DestroyWindow(wgl.hwnd);
         wgl.hwnd = nullptr;

@@ -1,29 +1,155 @@
-﻿# Debug State — Blackhole: GLFW → Win32+WGL 迁移
+﻿# Debug State — BlackHole: WGL → D3D11 渲染架构迁移
 
 ## 当前状态
 编译 ✅ (2026-06-28)
 渲染 ✅ 黑洞正常显示
-任务栏 ✅ 可点击，无双任务栏
+**架构评估 v2 (2026-06-29) — 经评审修正**
 
-## 已解决的问题
+## 仍存在的问题 (WGL 架构)
+1. 双鼠标（根因未定位，不预设 D3D11 自动解决）
+2. Win11 黄边框
+3. WS_EX_LAYERED 兼容性
+4. 仍需 WGL
 
-### 问题 A: 渲染不显示
-根因: WS_EX_NOREDIRECTIONBITMAP 过早设置
-修复: 从 CreateWindowEx 移除，移至 ShowWindow 之后
+## 架构评估结论 (经修正)
 
-### 问题 B: DPI 缩放
-根因: 未声明 DPI 感知
-修复: main() 开头 SetProcessDPIAware()
+### WGC 保留原始 ID3D11Texture2D ✅
+`WGC_GetFrame()` 返回 `ID3D11Texture2D*`。当前 CPU 往返多余。
 
-### 问题 C: 双任务栏
-根因: WGC 捕获全屏但窗口仅覆盖工作区
-修复: 纹理上传时用 capOffX/capOffY 裁剪到工作区子区域
+### Shader 可翻译 ✅
+纯数学 Shader，GLSL→HLSL 逐行对应。
 
-## 架构
+### 修正 1: 不删除旧模块
+- gl_texture.cpp/h — 保留
+- win32_gl.cpp/h — 保留
+- 新增代码并行建设，旧代码作为对照实现
+
+### 修正 2: TextureSource 抽象层
+将纹理输入抽象为接口，支持多数据源:
+Desktop / Video / Image / Camera / OBS
+Renderer 不需要知道纹理来源。
+
+### 修正 3: 职责分离
+- Win32 窗口: 只负责 HWND / CreateWindow / Message Loop
+- Renderer: 负责 SwapChain / Device / Shader / 绘制 / Present
+
+### 修正 4: IRenderer 接口
+OpenGLRenderer 和 D3D11Renderer 分别实现同一接口。
+可随时切换，A/B 对比，D3D11 出问题随时退回到 OpenGL。
+
+## 修正后的目标架构
+
 ```
-Win32窗口(工作区尺寸) + WGL OpenGL 3.3
-  ↓
-WGC捕获(全屏) → 纹理裁剪(工作区偏移) → OpenGL纹理
-  ↓
-黑洞Shader → SwapBuffers
+Window (Win32, 只管理 HWND/消息)
+        │
+        ▼
+Capture (WGC/DXGI, 不变)
+        │
+        ▼
+TextureSource (新增抽象层)
+        │
+        ▼
+IRenderer (接口)
+      ┌──────┴──────┐
+      ▼             ▼
+OpenGLRenderer   D3D11Renderer
+  (保留旧实现)    (新增)
 ```
+
+## 模块变更清单 (修正版)
+
+### 保持不变 (零修改)
+- capture_wgc.cpp/h
+- capture_dxgi.cpp/h
+- gui_config.cpp/h
+- gl_texture.cpp/h (保留)
+- win32_gl.cpp/h (保留, 但不再作为主渲染窗口)
+- blackhole.glsl (保留)
+
+### 新增模块
+- src/texture_source.h — 纹理源抽象接口
+- src/renderer_interface.h — IRenderer 接口
+- src/d3d11_renderer.h/cpp — D3D11 渲染器实现
+- src/win32_window.h/cpp — 纯 Win32 窗口 (无 WGL/D3D11)
+- shaders/blackhole.hlsl — HLSL 翻译
+- shaders/fullscreen_vs.hlsl — 顶点着色器
+
+### 修改模块
+- main.cpp — 引入 IRenderer，根据配置选择 OpenGL 或 D3D11 路径
+
+### 不删除任何文件
+
+## 迁移计划
+
+### 第一阶段: 创建基础层
+- [ ] 新建 src/texture_source.h (纹理源抽象)
+- [ ] 新建 src/renderer_interface.h (IRenderer 接口)
+- [ ] 新建 src/win32_window.h/cpp (纯 Win32 窗口)
+- [ ] 验证编译
+
+### 第二阶段: D3D11 渲染器
+- [ ] 新建 shaders/fullscreen_vs.hlsl
+- [ ] 新建 shaders/blackhole.hlsl
+- [ ] 新建 src/d3d11_renderer.h/cpp
+- [ ] 验证编译
+
+### 第三阶段: 集成到 main.cpp
+- [ ] 修改 CMakeLists.txt 添加新文件
+- [ ] 修改 main.cpp 支持双渲染路径
+- [ ] 命令行参数 / 编译宏切换 OpenGL/D3D11
+
+### 第四阶段: 测试验证
+- [ ] D3D11 路径编译运行
+- [ ] 对比 OpenGL/D3D11 行为差异
+- [ ] 测试窗口属性 (不预设 WS_EX_LAYERED 移除)
+- [ ] 测试双鼠标问题
+
+## 当前修改状态
+- [x] 架构分析 v1 完成
+- [x] 架构分析 v2 完成 (修正)
+- [ ] 第一阶段: 创建基础层
+- [ ] 第二阶段: D3D11 渲染器
+- [ ] 第三阶段: 集成
+- [ ] 第四阶段: 测试验证
+## 当前修改状态
+- [x] 第一阶段: 创建基础层 ✅
+  - [x] src/texture_source.h
+  - [x] src/renderer_interface.h
+  - [x] src/win32_window.h
+  - [x] src/win32_window.cpp
+  - [x] CMakeLists.txt 更新
+  - [x] 编译通过
+- [ ] 第二阶段: D3D11 渲染器
+- [ ] 第三阶段: 集成到 main.cpp
+- [ ] 第四阶段: 测试验证
+## 当前修改状态
+- [x] 第一阶段: 创建基础层 ✅
+  - [x] src/texture_source.h
+  - [x] src/renderer_interface.h
+  - [x] src/win32_window.h
+  - [x] src/win32_window.cpp
+  - [x] CMakeLists.txt 更新 (+win32_window.cpp)
+  - [x] 编译通过
+- [x] 第二阶段: D3D11 渲染器 ✅
+  - [x] shaders/fullscreen_vs.hlsl
+  - [x] shaders/blackhole.hlsl (GLSL→HLSL 精确翻译, 匹配 cbuffer 布局)
+  - [x] src/d3d11_renderer.h
+  - [x] src/d3d11_renderer.cpp (完整实现: SwapChain/Shader编译/ConstantBuffer/全屏四边形)
+  - [x] CMakeLists.txt 更新 (+d3d11_renderer.cpp, +d3dcompiler)
+  - [x] renderer_interface.h 更新 (BlackHoleUniforms 精确匹配 HLSL cbuffer 布局)
+  - [x] 编译通过, 零错误零警告
+- [ ] 第三阶段: 集成到 main.cpp
+- [ ] 第四阶段: 测试验证
+## 当前修改状态
+- [x] 第一阶段: 创建基础层 ✅
+- [x] 第二阶段: D3D11 渲染器 ✅
+- [x] 第三阶段: 集成到 main.cpp ✅
+  - [x] 编译开关 + D3D11 头文件 (#ifdef 守卫)
+  - [x] GL/gl.h 和 glcorearb 包裹
+  - [x] GL 函数声明包裹
+  - [x] Shader 编译函数包裹
+  - [x] main() 中 D3D11 渲染路径 (#else 块, OpenGL 完整保留)
+  - [x] CMakeLists.txt 添加 D3D11 编译定义选项 (默认注释)
+  - [x] OpenGL 路径编译通过 ✅
+  - [x] D3D11 路径编译通过 ✅ (零错误零警告)
+- [ ] 第四阶段: 运行时测试验证

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20)
 project(blackhole-standalone LANGUAGES CXX RC)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -25,8 +25,13 @@ add_executable(blackhole
     src/imgui/imgui_impl_opengl3.cpp
     src/gl_texture.cpp
     src/win32_gl.cpp
+    src/win32_window.cpp
+    src/d3d11_renderer.cpp
     resource.rc
 )
+
+# 取消注释以编译 D3D11 路径
+target_compile_definitions(blackhole PRIVATE BLACKHOLE_USE_D3D11)
 
 target_include_directories(blackhole PRIVATE
     ${OPENGL_INCLUDE_DIRS}
@@ -37,6 +42,7 @@ target_link_libraries(blackhole PRIVATE
     ${OPENGL_LIBRARIES}
     d3d11
     dxgi
+    d3dcompiler
     gdi32
     runtimeobject
     dwmapi

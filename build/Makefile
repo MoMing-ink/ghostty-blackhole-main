@@ -184,6 +184,30 @@ src/capture_wgc.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/capture_wgc.cpp.s
 .PHONY : src/capture_wgc.cpp.s
 
+src/d3d11_renderer.obj: src/d3d11_renderer.cpp.obj
+.PHONY : src/d3d11_renderer.obj
+
+# target to build an object file
+src/d3d11_renderer.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/d3d11_renderer.cpp.obj
+.PHONY : src/d3d11_renderer.cpp.obj
+
+src/d3d11_renderer.i: src/d3d11_renderer.cpp.i
+.PHONY : src/d3d11_renderer.i
+
+# target to preprocess a source file
+src/d3d11_renderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/d3d11_renderer.cpp.i
+.PHONY : src/d3d11_renderer.cpp.i
+
+src/d3d11_renderer.s: src/d3d11_renderer.cpp.s
+.PHONY : src/d3d11_renderer.s
+
+# target to generate assembly for a file
+src/d3d11_renderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/d3d11_renderer.cpp.s
+.PHONY : src/d3d11_renderer.cpp.s
+
 src/gl_texture.obj: src/gl_texture.cpp.obj
 .PHONY : src/gl_texture.obj
 
@@ -424,6 +448,30 @@ src/win32_gl.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_gl.cpp.s
 .PHONY : src/win32_gl.cpp.s
 
+src/win32_window.obj: src/win32_window.cpp.obj
+.PHONY : src/win32_window.obj
+
+# target to build an object file
+src/win32_window.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_window.cpp.obj
+.PHONY : src/win32_window.cpp.obj
+
+src/win32_window.i: src/win32_window.cpp.i
+.PHONY : src/win32_window.i
+
+# target to preprocess a source file
+src/win32_window.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_window.cpp.i
+.PHONY : src/win32_window.cpp.i
+
+src/win32_window.s: src/win32_window.cpp.s
+.PHONY : src/win32_window.s
+
+# target to generate assembly for a file
+src/win32_window.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\blackhole.dir\build.make CMakeFiles/blackhole.dir/src/win32_window.cpp.s
+.PHONY : src/win32_window.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -440,6 +488,9 @@ help:
 	@echo ... src/capture_wgc.obj
 	@echo ... src/capture_wgc.i
 	@echo ... src/capture_wgc.s
+	@echo ... src/d3d11_renderer.obj
+	@echo ... src/d3d11_renderer.i
+	@echo ... src/d3d11_renderer.s
 	@echo ... src/gl_texture.obj
 	@echo ... src/gl_texture.i
 	@echo ... src/gl_texture.s
@@ -470,6 +521,9 @@ help:
 	@echo ... src/win32_gl.obj
 	@echo ... src/win32_gl.i
 	@echo ... src/win32_gl.s
+	@echo ... src/win32_window.obj
+	@echo ... src/win32_window.i
+	@echo ... src/win32_window.s
 .PHONY : help
 
 
