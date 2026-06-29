@@ -55,4 +55,13 @@ if(MINGW)
     target_link_options(blackhole PRIVATE -mwindows)
     # Fix windres popen bug on Windows
     set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} --use-temp-file")
+    # 自动拷贝 MSYS2 UCRT64 运行时 DLL 到输出目录
+    set(UCRT64_BIN "C:/msys64/ucrt64/bin")
+    add_custom_command(TARGET blackhole POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${UCRT64_BIN}/libwinpthread-1.dll"
+            "$<TARGET_FILE_DIR:blackhole>/libwinpthread-1.dll"
+        COMMENT "Copying libwinpthread-1.dll to output directory"
+    )
 endif()
+
