@@ -1,0 +1,8 @@
+[Win32GL] Window ready: 2560x1440
+[WGC] IsBorderRequired set to false
+[WGC] IsCursorCaptureEnabled set to false
+[WGC] Capture ready: 2560x1440
+[Tex] Texture ready: 2560x1440 (initialized with default content)
+[Win32GL] Window shown offscreen (25H2 flicker fix)
+[Win32GL] Layered alpha set to 255 (offscreen)
+[Win32GL] Window moved to screen (0,0)

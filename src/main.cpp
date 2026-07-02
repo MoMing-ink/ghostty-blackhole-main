@@ -195,9 +195,10 @@ static GLuint createProgram(const std::string& vert, const std::string& frag, FI
 
 // 读取 blackhole_advanced.txt 中的 screenSwallow 字段
 // 由 QML UI (BlackHole.exe) 写入，控制是否取消黑洞活动范围限制
+// 默认开启: 文件不存在或字段缺失时返回 true
 static bool LoadAdvancedScreenSwallow() {
     std::ifstream f("blackhole_advanced.txt");
-    if (!f) return false;  // 文件不存在 = 默认关闭
+    if (!f) return true;  // 文件不存在 = 默认开启
     std::string line;
     while (std::getline(f, line)) {
         // 匹配 "screenSwallow=1" 或 "screenSwallow=0"
@@ -208,7 +209,7 @@ static bool LoadAdvancedScreenSwallow() {
             }
         }
     }
-    return false;
+    return true;  // 字段缺失 = 默认开启
 }
 
 static bool buildFragmentShader(std::string& out, bool swallowScreen, FILE* debugLog) {
@@ -682,12 +683,11 @@ int main(int argc, char* argv[]) {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     SetProcessDPIAware();  // 声明 DPI 感知，防止 Windows 虚拟化缩放
 
-    // Set working directory to project root
+    // Set working directory to exe directory (where blackhole.glsl, shaders/, configs live)
+    // UI (BlackHole.exe) writes configs to this directory; renderer must read from here too
     {
         char p[MAX_PATH]; GetModuleFileNameA(nullptr, p, MAX_PATH);
         char* s = strrchr(p, '\\'); if (s) *s = 0;
-        s = strrchr(p, '\\');
-        if (s && (strcmp(s+1,"build")==0 || strcmp(s+1,"Build")==0)) *s = 0;
         SetCurrentDirectoryA(p);
     }
 
@@ -925,15 +925,14 @@ int main(int argc, char* argv[]) {
         if (debugLog) { fprintf(debugLog, "[WARN] Only %d frames after %d attempts\n", stableFrames, warmupAttempts); fflush(debugLog); }
     }
 
-    // ---- 显示窗口（保持在屏幕外, 仅 ShowWindow） ----
-    // Win11 25H2 修复: 窗口保持在屏幕外 (-32000,-32000) 显示
-    // 25H2 修改了 DWM 对 Layered window 的合成时序, alpha=0 期间仍可能合成空内容帧
-    // 流程: Show(屏幕外, alpha=0) → 渲染第一帧 → EnableLayered(alpha=255) → MoveToScreen(0,0)
-    if (debugLog) { fprintf(debugLog, "[Init] Showing window offscreen (alpha=0, 25H2 fix)...\n"); fflush(debugLog); }
+    // ---- 显示窗口（移入屏幕并显示，alpha=0 透明用户看不到空白黑屏） ----
+    // 窗口在屏幕外完成初始化，现在移到屏幕 (0,0) 并显示
+    // alpha=0 期间用户看不到中间态，渲染第一帧后再设 alpha=255
+    if (debugLog) { fprintf(debugLog, "[Init] Showing window (alpha=0)...\n"); fflush(debugLog); }
     Win32GL_Show(wgl);
     Win32GL_PollEvents(wgl);
 
-    // 先渲染一帧保证窗口有内容（窗口在屏幕外 alpha=0, 用户看不到中间态）
+    // 先渲染一帧保证窗口有内容（此时 alpha=0 透明，用户看不到中间态）
     {
         ID3D11Texture2D* frame = WGC_GetFrame(wgc);
         if (frame) {
@@ -984,14 +983,8 @@ int main(int argc, char* argv[]) {
     }
 
     // 渲染完第一帧后才让窗口可见（alpha=255）
-    // 此时窗口仍在屏幕外 (-32000,-32000), DWM 合成空内容用户也看不到
+    // 此时窗口已有黑洞内容，不会出现空白黑屏帧
     Win32GL_EnableLayered(wgl);
-
-    // Win11 25H2 修复: 此时窗口已有内容且 alpha=255, 才移到屏幕 (0,0)
-    // 移动期间 DWM 合成的过渡帧也包含黑洞内容, 不会闪空白
-    Win32GL_MoveToScreen(wgl);
-    Win32GL_PollEvents(wgl);
-
     // 不再隐藏系统光标 — WGC 已通过 IsCursorCaptureEnabled=false 禁用光标捕获，
     // 捕获的纹理不含光标，不会出现双重光标，系统光标始终保持正常可用
     
