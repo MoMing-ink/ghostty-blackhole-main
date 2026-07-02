@@ -999,12 +999,15 @@ int main(int argc, char* argv[]) {
     }
 
     // ---- 显示窗口（屏幕外初始化已完成，移入并显示） ----
-    if (debugLog) { fprintf(debugLog, "[Init] Showing window...\n"); fflush(debugLog); }
+    // 关键流程：窗口创建时已是 WS_EX_LAYERED + alpha=0（完全透明）
+    // 1. 移窗到屏幕 + 显示（alpha=0，用户看不到空白黑屏）
+    // 2. 立即渲染第一帧（仍在 alpha=0 状态，避免 DWM 闪烁）
+    // 3. 设 alpha=255 让窗口可见（此时已有内容，无空白帧）
+    if (debugLog) { fprintf(debugLog, "[Init] Showing window (alpha=0)...\n"); fflush(debugLog); }
     Win32GL_Show(wgl);
-    Sleep(50);
     Win32GL_PollEvents(wgl);
 
-    // 先渲染一帧保证窗口有内容
+    // 先渲染一帧保证窗口有内容（此时 alpha=0 透明，用户看不到中间态）
     {
         ID3D11Texture2D* frame = WGC_GetFrame(wgc);
         if (frame) {
@@ -1054,7 +1057,8 @@ int main(int argc, char* argv[]) {
         gl_UseProgram(0); Win32GL_SwapBuffers(wgl);
     }
 
-    // 启用分层模式（鼠标穿透）
+    // 渲染完第一帧后才让窗口可见（alpha=255）
+    // 此时窗口已有黑洞内容，不会出现空白黑屏帧
     Win32GL_EnableLayered(wgl);
     // 不再隐藏系统光标 — WGC 已通过 IsCursorCaptureEnabled=false 禁用光标捕获，
     // 捕获的纹理不含光标，不会出现双重光标，系统光标始终保持正常可用
