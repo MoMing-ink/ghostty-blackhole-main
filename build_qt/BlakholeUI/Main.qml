@@ -166,46 +166,6 @@ ApplicationWindow {
             }
         }
 
-        // === 右上角标题文字 ===
-        Item {
-            id: appTitle
-            width: 400
-            height: 210
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.topMargin: 50
-
-            Column {
-                spacing: 4
-                anchors.centerIn: parent
-
-                Row {
-                    spacing: 6
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    Text { text: "B"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "l"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "a"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "k"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "h"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "o"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "l"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: "e"; font.pixelSize: 36; font.bold: true; color: theme.focusColor }
-                    Text { text: " "; font.pixelSize: 36 }
-                    Text { text: "U"; font.pixelSize: 36; font.bold: true; color: theme.textColor }
-                    Text { text: "I"; font.pixelSize: 36; font.bold: true; color: theme.textColor }
-                }
-
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "\u9ed1\u6d1e\u53ef\u89c6\u5316\u914d\u7f6e\u5de5\u5177"
-                    font.pixelSize: 24
-                    color: theme.textColor
-                    opacity: 0.5
-                }
-            }
-        }
-
         // === 左侧侧边栏毛玻璃卡片 ===
         Components.EBlurCard {
             id: leftSidebarCard
@@ -322,18 +282,21 @@ ApplicationWindow {
 
             // 高级设置页面
             Pages.AdvancedConfig {
+                bhCore: blackHoleCore
                 anchors.fill: parent
                 visible: root.currentPageIndex === 1
             }
 
             // 定时显示页面
             Pages.ScheduleConfig {
+                bhCore: blackHoleCore
                 anchors.fill: parent
                 visible: root.currentPageIndex === 2
             }
 
             // 空闲检测名单页面
             Pages.IdleListConfig {
+                bhCore: blackHoleCore
                 anchors.fill: parent
                 visible: root.currentPageIndex === 3
             }

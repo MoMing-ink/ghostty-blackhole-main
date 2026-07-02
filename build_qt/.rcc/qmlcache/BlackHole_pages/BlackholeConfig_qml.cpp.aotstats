@@ -448,7 +448,7 @@
                         {
                             "codegenResult": 2,
                             "column": 89,
-                            "durationMicroseconds": 1000,
+                            "durationMicroseconds": 0,
                             "functionName": "color",
                             "line": 185,
                             "message": "Cannot access value for name theme"

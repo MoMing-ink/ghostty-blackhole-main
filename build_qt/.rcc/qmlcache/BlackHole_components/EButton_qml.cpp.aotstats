@@ -128,7 +128,7 @@
                         {
                             "codegenResult": 0,
                             "column": 30,
-                            "durationMicroseconds": 0,
+                            "durationMicroseconds": 1000,
                             "functionName": "tokens",
                             "line": 33,
                             "message": ""

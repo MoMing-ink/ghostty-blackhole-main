@@ -1,4 +1,4 @@
-﻿// ScheduleConfig.qml — 定时显示设置页面
+// ScheduleConfig.qml — 定时显示设置页面
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -122,17 +122,26 @@ Item {
                     SpinBox {
                         id: startHSpin
                         from: 0; to: 23; value: schedPage.startHour
-                        editable: true; Layout.preferredWidth: 70; Layout.preferredHeight: 34
+                        editable: true; width: 70; height: 32
+                        textFromValue: function(v, l) { return String(v).padStart(2, "0") }
+                        valueFromText: function(t) { return parseInt(t) }
                         onValueChanged: { schedPage.startHour = value; if (bhCore) bhCore.startHour = value }
-                        background: Rectangle {
-                            radius: 8; color: theme.primaryColor
-                            border.color: theme.borderColor; border.width: 1
-                        }
                         contentItem: TextInput {
-                            text: String(startHSpin.value).padStart(2, "0")
-                            color: theme.textColor; font.pixelSize: 14
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            text: startHSpin.displayText
+                            font: startHSpin.font
+                            color: theme.textColor
+                            selectionColor: theme.focusColor
+                            selectedTextColor: "#ffffff"
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                            readOnly: !startHSpin.editable
+                            validator: startHSpin.validator
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        background: Rectangle {
+                            implicitWidth: 70; implicitHeight: 32
+                            radius: 6; color: theme.secondaryColor
+                            border.color: theme.borderColor; border.width: 1
                         }
                     }
 
@@ -141,17 +150,26 @@ Item {
                     SpinBox {
                         id: startMSpin
                         from: 0; to: 59; stepSize: 5; value: schedPage.startMinute
-                        editable: true; Layout.preferredWidth: 70; Layout.preferredHeight: 34
+                        editable: true; width: 70; height: 32
+                        textFromValue: function(v, l) { return String(v).padStart(2, "0") }
+                        valueFromText: function(t) { return parseInt(t) }
                         onValueChanged: { schedPage.startMinute = value; if (bhCore) bhCore.startMinute = value }
-                        background: Rectangle {
-                            radius: 8; color: theme.primaryColor
-                            border.color: theme.borderColor; border.width: 1
-                        }
                         contentItem: TextInput {
-                            text: String(startMSpin.value).padStart(2, "0")
-                            color: theme.textColor; font.pixelSize: 14
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            text: startMSpin.displayText
+                            font: startMSpin.font
+                            color: theme.textColor
+                            selectionColor: theme.focusColor
+                            selectedTextColor: "#ffffff"
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                            readOnly: !startMSpin.editable
+                            validator: startMSpin.validator
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        background: Rectangle {
+                            implicitWidth: 70; implicitHeight: 32
+                            radius: 6; color: theme.secondaryColor
+                            border.color: theme.borderColor; border.width: 1
                         }
                     }
                 }
@@ -172,17 +190,26 @@ Item {
                     SpinBox {
                         id: endHSpin
                         from: 0; to: 23; value: schedPage.endHour
-                        editable: true; Layout.preferredWidth: 70; Layout.preferredHeight: 34
+                        editable: true; width: 70; height: 32
+                        textFromValue: function(v, l) { return String(v).padStart(2, "0") }
+                        valueFromText: function(t) { return parseInt(t) }
                         onValueChanged: { schedPage.endHour = value; if (bhCore) bhCore.endHour = value }
-                        background: Rectangle {
-                            radius: 8; color: theme.primaryColor
-                            border.color: theme.borderColor; border.width: 1
-                        }
                         contentItem: TextInput {
-                            text: String(endHSpin.value).padStart(2, "0")
-                            color: theme.textColor; font.pixelSize: 14
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            text: endHSpin.displayText
+                            font: endHSpin.font
+                            color: theme.textColor
+                            selectionColor: theme.focusColor
+                            selectedTextColor: "#ffffff"
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                            readOnly: !endHSpin.editable
+                            validator: endHSpin.validator
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        background: Rectangle {
+                            implicitWidth: 70; implicitHeight: 32
+                            radius: 6; color: theme.secondaryColor
+                            border.color: theme.borderColor; border.width: 1
                         }
                     }
 
@@ -191,17 +218,26 @@ Item {
                     SpinBox {
                         id: endMSpin
                         from: 0; to: 59; stepSize: 5; value: schedPage.endMinute
-                        editable: true; Layout.preferredWidth: 70; Layout.preferredHeight: 34
+                        editable: true; width: 70; height: 32
+                        textFromValue: function(v, l) { return String(v).padStart(2, "0") }
+                        valueFromText: function(t) { return parseInt(t) }
                         onValueChanged: { schedPage.endMinute = value; if (bhCore) bhCore.endMinute = value }
-                        background: Rectangle {
-                            radius: 8; color: theme.primaryColor
-                            border.color: theme.borderColor; border.width: 1
-                        }
                         contentItem: TextInput {
-                            text: String(endMSpin.value).padStart(2, "0")
-                            color: theme.textColor; font.pixelSize: 14
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            text: endMSpin.displayText
+                            font: endMSpin.font
+                            color: theme.textColor
+                            selectionColor: theme.focusColor
+                            selectedTextColor: "#ffffff"
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                            readOnly: !endMSpin.editable
+                            validator: endMSpin.validator
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        background: Rectangle {
+                            implicitWidth: 70; implicitHeight: 32
+                            radius: 6; color: theme.secondaryColor
+                            border.color: theme.borderColor; border.width: 1
                         }
                     }
                 }
@@ -296,17 +332,24 @@ Item {
                     SpinBox {
                         id: cntSpin
                         from: 1; to: 1440; stepSize: 5; value: schedPage.countdownMinutes
-                        editable: true; Layout.preferredWidth: 90; Layout.preferredHeight: 34
+                        editable: true; width: 90; height: 32
                         onValueChanged: { schedPage.countdownMinutes = value; if (bhCore) bhCore.countdownMinutes = value }
-                        background: Rectangle {
-                            radius: 8; color: theme.primaryColor
-                            border.color: theme.borderColor; border.width: 1
-                        }
                         contentItem: TextInput {
-                            text: cntSpin.value
-                            color: theme.textColor; font.pixelSize: 14
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            text: cntSpin.displayText
+                            font: cntSpin.font
+                            color: theme.textColor
+                            selectionColor: theme.focusColor
+                            selectedTextColor: "#ffffff"
+                            horizontalAlignment: Qt.AlignHCenter
+                            verticalAlignment: Qt.AlignVCenter
+                            readOnly: !cntSpin.editable
+                            validator: cntSpin.validator
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+                        background: Rectangle {
+                            implicitWidth: 90; implicitHeight: 32
+                            radius: 6; color: theme.secondaryColor
+                            border.color: theme.borderColor; border.width: 1
                         }
                     }
 

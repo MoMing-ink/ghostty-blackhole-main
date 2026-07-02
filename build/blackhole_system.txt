@@ -1,4 +1,4 @@
-isDark=1
+isDark=0
 followSystem=0
 focusColor=#ff00c4b3
 launchMinimized=0
