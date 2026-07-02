@@ -72,16 +72,11 @@ int main(int argc, char *argv[])
             DwmSetWindowAttribute(hwnd, 33, &cornerPreference, sizeof(cornerPreference));
 
             // 关联托盘与窗口
+            // launchMinimized 时的窗口隐藏/托盘显示/渲染器启动由 QML (Main.qml) 处理
+            // 这里只做托盘与窗口的关联
             auto *tray = window->findChild<SystemTray*>();
             if (tray) {
                 tray->setWindow(window);
-
-                // 启动后自动隐藏界面并启动黑洞
-                if (blackHoleCore.launchMinimized()) {
-                    window->hide();
-                    tray->setVisible(true);
-                    blackHoleCore.applyAndStart();
-                }
             }
         }
     }

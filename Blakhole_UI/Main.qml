@@ -9,9 +9,10 @@ import "pages" as Pages
 
 ApplicationWindow {
     id: root
-    // visible 由 C++ 控制: launchMinimized 时不显示窗口, 直接进托盘
-    // 避免「先显示再隐藏」导致 Win11 25H2 DWM 合成异常 (窗口看似消失)
-    visible: !root.launchMinimized
+    // 启动时可见性由 C++ 控制 (main.cpp 根据 launchMinimized 调用 setVisible)
+    // visible 不绑定 launchMinimized: 运行中切换该设置只保存配置, 不影响当前窗口
+    // (避免用户在设置里勾选「开机自启后自动隐藏」时窗口立即消失且无托盘可恢复)
+    visible: false
     width: 1400
     height: 800
     minimumWidth: 1400
@@ -30,15 +31,19 @@ ApplicationWindow {
 
     SystemTray {
         id: systemTray
-        Component.onCompleted: systemTray.visible = root.launchMinimized
         onExitRequested: root.close()
     }
 
     Component.onCompleted: {
+        // 启动时根据 launchMinimized 决定: 显示窗口 OR 直接进托盘
+        // 运行中切换 launchMinimized 只保存配置, 不影响当前窗口可见性
         if (root.launchMinimized && blackHoleCore) {
-            // 窗口从未显示, 直接进托盘 + 启动渲染器
+            // 静默启动: 窗口保持隐藏, 显示托盘 + 启动渲染器
             systemTray.visible = true
             blackHoleCore.applyAndStart()
+        } else {
+            // 正常启动: 显示主窗口
+            root.visible = true
         }
     }
 
