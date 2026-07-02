@@ -49,10 +49,16 @@ bool Win32GL_PollEvents(Win32GL& wgl);
 void Win32GL_DrainMessages(Win32GL& wgl);
 
 // 显示窗口（在所有初始化完成后调用，避免启动黑屏）
+// Win11 25H2 修复: 仅 ShowWindow, 窗口保持在屏幕外 (-32000,-32000)
+// 必须配合 Win32GL_MoveToScreen 在第一帧渲染完成后移窗到屏幕
 void Win32GL_Show(Win32GL& wgl);
 
 // 启用分层模式（在首次渲染完成后调用）
 void Win32GL_EnableLayered(Win32GL& wgl);
+
+// 把窗口从屏幕外移到屏幕左上角 (0,0)
+// 必须在 Win32GL_EnableLayered 之后调用, 此时窗口已有内容且 alpha=255
+void Win32GL_MoveToScreen(Win32GL& wgl);
 
 // 立即隐藏窗口（用于退出动画结束时）
 void Win32GL_Hide(Win32GL& wgl);

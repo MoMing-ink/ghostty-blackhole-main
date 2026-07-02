@@ -234,3 +234,209 @@
   -> FALSE: not a video/browser app (pname='githubdesktop.exe')
 [54680187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(922,571,1906,1252) 984x681 exStyle=0x200100 style=0x14c70000
   -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54692187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54693203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54694187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54695203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54696203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54697203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54698203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54699187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54700203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54703187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54704203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54705187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54709187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54710203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54723187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54730187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54731203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54735187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54740187] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54741203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54742203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54743203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54744203] fg hwnd=0000000000021864 pid=21744 name='githubdesktop.exe' cls='Chrome_WidgetWin_1' rect=(800,570,1784,1251) 984x681 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='githubdesktop.exe')
+[54755187] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54756203] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54757203] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54758203] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54759203] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54760187] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54761187] fg hwnd=00000000000a18b2 pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54776187] fg hwnd=000000000027190c pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54777203] fg hwnd=000000000027190c pid=4520 name='qq.exe' cls='Chrome_WidgetWin_1' rect=(803,378,1757,1061) 954x683 exStyle=0x100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='qq.exe')
+[54804203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54806187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54808187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54810187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54811187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54812187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54813203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54814187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54815203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54816203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54817187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54818203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54819187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54820203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54821203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54822187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54823203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54824187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54825203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54826203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54827187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54828203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54829203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54830187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54831203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54832187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54833187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54834187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54835187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54836187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54837187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54838187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54839187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54840203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54841187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54842187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54843203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54844203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54845187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54849187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54850187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54852187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54856187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54857203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54859187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54860203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54861187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54862203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54863187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54864187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54865187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54875187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54876187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54877187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54878187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54879187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54880203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54881187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54882203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54883187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54884203] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54885187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54913203] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54914187] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54944187] fg hwnd=00000000000316c4 pid=6120 name='trae solo cn.exe' cls='Chrome_WidgetWin_1' rect=(894,269,2386,1106) 1492x837 exStyle=0x200100 style=0x14c70000
+  -> FALSE: not a video/browser app (pname='trae solo cn.exe')
+[54965187] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54968203] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54972203] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54973187] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54976187] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)
+[54995203] fg hwnd=0000000000220f16 pid=14344 name='msedge.exe' cls='Chrome_WidgetWin_1' rect=(-8,-8,2568,1447) 2576x1455 exStyle=0x200100 style=0x17cf0000
+  -> FALSE: Method 3 audio check (hasAudio=0)

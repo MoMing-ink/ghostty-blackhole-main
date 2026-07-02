@@ -1,0 +1,25 @@
+<RCC>
+  <qresource prefix="/qt/qml/BlakholeUI/">
+    <file alias="Main.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/Main.qml</file>
+    <file alias="components/BlackholeLargePreview.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/BlackholeLargePreview.qml</file>
+    <file alias="components/BlackholePreview.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/BlackholePreview.qml</file>
+    <file alias="components/BlackholePreviewArea.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/BlackholePreviewArea.qml</file>
+    <file alias="components/EAlertDialog.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EAlertDialog.qml</file>
+    <file alias="components/EAvatar.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EAvatar.qml</file>
+    <file alias="components/EBlurCard.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EBlurCard.qml</file>
+    <file alias="components/EButton.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EButton.qml</file>
+    <file alias="components/EDrawer.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EDrawer.qml</file>
+    <file alias="components/EDropDown.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EDropDown.qml</file>
+    <file alias="components/EList.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EList.qml</file>
+    <file alias="components/ESlider.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/ESlider.qml</file>
+    <file alias="components/ESwitchButton.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/ESwitchButton.qml</file>
+    <file alias="components/ETheme.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/ETheme.qml</file>
+    <file alias="components/ETimeDisplay.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/ETimeDisplay.qml</file>
+    <file alias="components/EToast.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/components/EToast.qml</file>
+    <file alias="pages/AdvancedConfig.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/pages/AdvancedConfig.qml</file>
+    <file alias="pages/BlackholeConfig.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/pages/BlackholeConfig.qml</file>
+    <file alias="pages/IdleListConfig.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/pages/IdleListConfig.qml</file>
+    <file alias="pages/ScheduleConfig.qml">D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/pages/ScheduleConfig.qml</file>
+  </qresource>
+</RCC>
+

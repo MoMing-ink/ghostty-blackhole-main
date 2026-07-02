@@ -1,0 +1,3 @@
+set(__QT_DEPLOY_TARGET_BlackHole_FILE D:/Projects/ghostty-blackhole-main-main/build_qt/BlackHole.exe)
+set(__QT_DEPLOY_TARGET_BlackHole_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_BlackHole_RUNTIME_DLLS C:/msys64/ucrt64/bin/Qt6Widgets.dll;C:/msys64/ucrt64/bin/Qt6QuickControls2.dll;C:/msys64/ucrt64/bin/Qt6QuickTemplates2.dll;C:/msys64/ucrt64/bin/Qt6Quick.dll;C:/msys64/ucrt64/bin/Qt6OpenGL.dll;C:/msys64/ucrt64/bin/Qt6QmlMeta.dll;C:/msys64/ucrt64/bin/Qt6QmlWorkerScript.dll;C:/msys64/ucrt64/bin/Qt6Gui.dll;C:/msys64/ucrt64/bin/Qt6QmlModels.dll;C:/msys64/ucrt64/bin/Qt6Qml.dll;C:/msys64/ucrt64/bin/Qt6Network.dll;C:/msys64/ucrt64/bin/Qt6Core.dll)

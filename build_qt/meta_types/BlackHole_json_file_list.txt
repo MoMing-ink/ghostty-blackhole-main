@@ -1,0 +1,3 @@
+D:/Projects/ghostty-blackhole-main-main/build_qt/BlackHole_autogen/include/../TAC5DWH4SE/moc_blackholecore.cpp.json
+D:/Projects/ghostty-blackhole-main-main/build_qt/BlackHole_autogen/include/../TAC5DWH4SE/moc_blackholepreviewfbo.cpp.json
+D:/Projects/ghostty-blackhole-main-main/build_qt/BlackHole_autogen/include/../TAC5DWH4SE/moc_systemtray.cpp.json

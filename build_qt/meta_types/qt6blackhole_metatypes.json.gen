@@ -1,0 +1,2117 @@
+[
+    {
+        "classes": [
+            {
+                "className": "PresetModel",
+                "lineNumber": 32,
+                "object": true,
+                "qualifiedClassName": "PresetModel",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            },
+            {
+                "className": "PresetListModel",
+                "lineNumber": 61,
+                "object": true,
+                "qualifiedClassName": "PresetListModel",
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QAbstractListModel"
+                    }
+                ]
+            },
+            {
+                "className": "BlackHoleCore",
+                "lineNumber": 79,
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "lineNumber": 83,
+                        "name": "displayMode",
+                        "notify": "displayModeChanged",
+                        "override": false,
+                        "read": "displayMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDisplayMode"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "lineNumber": 84,
+                        "name": "idleSeconds",
+                        "notify": "idleSecondsChanged",
+                        "override": false,
+                        "read": "idleSeconds",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setIdleSeconds"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "lineNumber": 85,
+                        "name": "playMode",
+                        "notify": "playModeChanged",
+                        "override": false,
+                        "read": "playMode",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setPlayMode"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "lineNumber": 86,
+                        "name": "slotSeconds",
+                        "notify": "slotSecondsChanged",
+                        "override": false,
+                        "read": "slotSeconds",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setSlotSeconds"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "lineNumber": 87,
+                        "name": "videoAsIdle",
+                        "notify": "videoAsIdleChanged",
+                        "override": false,
+                        "read": "videoAsIdle",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setVideoAsIdle"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "lineNumber": 88,
+                        "name": "autoStart",
+                        "notify": "autoStartChanged",
+                        "override": false,
+                        "read": "autoStart",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setAutoStart"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "lineNumber": 89,
+                        "name": "launchMinimized",
+                        "notify": "launchMinimizedChanged",
+                        "override": false,
+                        "read": "launchMinimized",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setLaunchMinimized"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "lineNumber": 91,
+                        "name": "screenTarget",
+                        "notify": "screenTargetChanged",
+                        "override": false,
+                        "read": "screenTarget",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setScreenTarget"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "lineNumber": 94,
+                        "name": "rendererRunning",
+                        "notify": "rendererRunningChanged",
+                        "override": false,
+                        "read": "rendererRunning",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "lineNumber": 95,
+                        "name": "systemActive",
+                        "notify": "systemActiveChanged",
+                        "override": false,
+                        "read": "isSystemActive",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "lineNumber": 98,
+                        "name": "currentPresetIndex",
+                        "notify": "currentPresetIndexChanged",
+                        "override": false,
+                        "read": "currentPresetIndex",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setCurrentPresetIndex"
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 11,
+                        "lineNumber": 101,
+                        "name": "presetModel",
+                        "override": false,
+                        "read": "presetModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractItemModel*",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": true,
+                        "designable": true,
+                        "final": false,
+                        "index": 12,
+                        "lineNumber": 104,
+                        "name": "presetListModel",
+                        "override": false,
+                        "read": "presetListModel",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QAbstractItemModel*",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 13,
+                        "lineNumber": 105,
+                        "name": "currentListName",
+                        "notify": "currentListChanged",
+                        "override": false,
+                        "read": "currentListName",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QString",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 14,
+                        "lineNumber": 108,
+                        "name": "diskTemp",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskTemp",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 15,
+                        "lineNumber": 109,
+                        "name": "diskIncl",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskIncl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 16,
+                        "lineNumber": 110,
+                        "name": "diskRoll",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskRoll",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 17,
+                        "lineNumber": 111,
+                        "name": "diskInner",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskInner",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 18,
+                        "lineNumber": 112,
+                        "name": "diskOuter",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskOuter",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 19,
+                        "lineNumber": 113,
+                        "name": "diskOpac",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskOpac",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 20,
+                        "lineNumber": 114,
+                        "name": "diskDopp",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskDopp",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 21,
+                        "lineNumber": 115,
+                        "name": "diskBeam",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskBeam",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 22,
+                        "lineNumber": 116,
+                        "name": "diskGain",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskGain",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 23,
+                        "lineNumber": 117,
+                        "name": "diskContr",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskContr",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 24,
+                        "lineNumber": 118,
+                        "name": "diskWind",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskWind",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 25,
+                        "lineNumber": 119,
+                        "name": "diskSpeed",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskSpeed",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 26,
+                        "lineNumber": 120,
+                        "name": "diskExpo",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskExpo",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 27,
+                        "lineNumber": 121,
+                        "name": "diskStar",
+                        "notify": "currentPresetChanged",
+                        "override": false,
+                        "read": "diskStar",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 28,
+                        "lineNumber": 124,
+                        "name": "followMouse",
+                        "notify": "followMouseChanged",
+                        "override": false,
+                        "read": "followMouse",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setFollowMouse"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 29,
+                        "lineNumber": 125,
+                        "name": "randomPath",
+                        "notify": "randomPathChanged",
+                        "override": false,
+                        "read": "randomPath",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setRandomPath"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 30,
+                        "lineNumber": 126,
+                        "name": "animationSpeed",
+                        "notify": "animationSpeedChanged",
+                        "override": false,
+                        "read": "animationSpeed",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setAnimationSpeed"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 31,
+                        "lineNumber": 127,
+                        "name": "screenSwallow",
+                        "notify": "screenSwallowChanged",
+                        "override": false,
+                        "read": "screenSwallow",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setScreenSwallow"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 32,
+                        "lineNumber": 128,
+                        "name": "distortion",
+                        "notify": "distortionChanged",
+                        "override": false,
+                        "read": "distortion",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDistortion"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 33,
+                        "lineNumber": 129,
+                        "name": "holeSize",
+                        "notify": "holeSizeChanged",
+                        "override": false,
+                        "read": "holeSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setHoleSize"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 34,
+                        "lineNumber": 130,
+                        "name": "growEnabled",
+                        "notify": "growEnabledChanged",
+                        "override": false,
+                        "read": "growEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setGrowEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 35,
+                        "lineNumber": 131,
+                        "name": "initialSize",
+                        "notify": "initialSizeChanged",
+                        "override": false,
+                        "read": "initialSize",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setInitialSize"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 36,
+                        "lineNumber": 134,
+                        "name": "idleWhitelist",
+                        "notify": "idleWhitelistChanged",
+                        "override": false,
+                        "read": "idleWhitelist",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setIdleWhitelist"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 37,
+                        "lineNumber": 135,
+                        "name": "idleBlacklist",
+                        "notify": "idleBlacklistChanged",
+                        "override": false,
+                        "read": "idleBlacklist",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QStringList",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setIdleBlacklist"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 38,
+                        "lineNumber": 138,
+                        "name": "scheduleEnabled",
+                        "notify": "scheduleEnabledChanged",
+                        "override": false,
+                        "read": "scheduleEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setScheduleEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 39,
+                        "lineNumber": 139,
+                        "name": "startHour",
+                        "notify": "startHourChanged",
+                        "override": false,
+                        "read": "startHour",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setStartHour"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 40,
+                        "lineNumber": 140,
+                        "name": "startMinute",
+                        "notify": "startMinuteChanged",
+                        "override": false,
+                        "read": "startMinute",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setStartMinute"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 41,
+                        "lineNumber": 141,
+                        "name": "endHour",
+                        "notify": "endHourChanged",
+                        "override": false,
+                        "read": "endHour",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setEndHour"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 42,
+                        "lineNumber": 142,
+                        "name": "endMinute",
+                        "notify": "endMinuteChanged",
+                        "override": false,
+                        "read": "endMinute",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setEndMinute"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 43,
+                        "lineNumber": 143,
+                        "name": "countdownEnabled",
+                        "notify": "countdownEnabledChanged",
+                        "override": false,
+                        "read": "countdownEnabled",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setCountdownEnabled"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 44,
+                        "lineNumber": 144,
+                        "name": "countdownMinutes",
+                        "notify": "countdownMinutesChanged",
+                        "override": false,
+                        "read": "countdownMinutes",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setCountdownMinutes"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 45,
+                        "lineNumber": 147,
+                        "name": "isDark",
+                        "notify": "isDarkChanged",
+                        "override": false,
+                        "read": "isDark",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setIsDark"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 46,
+                        "lineNumber": 148,
+                        "name": "followSystem",
+                        "notify": "followSystemChanged",
+                        "override": false,
+                        "read": "followSystem",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setFollowSystem"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 47,
+                        "lineNumber": 149,
+                        "name": "focusColor",
+                        "notify": "focusColorChanged",
+                        "override": false,
+                        "read": "focusColor",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "QColor",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setFocusColor"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 48,
+                        "lineNumber": 150,
+                        "name": "skipExitDialog",
+                        "notify": "skipExitDialogChanged",
+                        "override": false,
+                        "read": "skipExitDialog",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setSkipExitDialog"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 49,
+                        "lineNumber": 151,
+                        "name": "defaultCloseAction",
+                        "notify": "defaultCloseActionChanged",
+                        "override": false,
+                        "read": "defaultCloseAction",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "int",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDefaultCloseAction"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 50,
+                        "lineNumber": 155,
+                        "name": "overrideHoleRadius",
+                        "notify": "overrideHoleRadiusChanged",
+                        "override": false,
+                        "read": "overrideHoleRadius",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideHoleRadius"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 51,
+                        "lineNumber": 156,
+                        "name": "overrideDiskGain",
+                        "notify": "overrideDiskGainChanged",
+                        "override": false,
+                        "read": "overrideDiskGain",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideDiskGain"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 52,
+                        "lineNumber": 157,
+                        "name": "overrideDiskTemp",
+                        "notify": "overrideDiskTempChanged",
+                        "override": false,
+                        "read": "overrideDiskTemp",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideDiskTemp"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 53,
+                        "lineNumber": 158,
+                        "name": "overrideExposure",
+                        "notify": "overrideExposureChanged",
+                        "override": false,
+                        "read": "overrideExposure",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideExposure"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 54,
+                        "lineNumber": 159,
+                        "name": "overrideSpd",
+                        "notify": "overrideSpdChanged",
+                        "override": false,
+                        "read": "overrideSpd",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideSpd"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 55,
+                        "lineNumber": 160,
+                        "name": "overrideStarGain",
+                        "notify": "overrideStarGainChanged",
+                        "override": false,
+                        "read": "overrideStarGain",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideStarGain"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 56,
+                        "lineNumber": 161,
+                        "name": "overrideDiskIncl",
+                        "notify": "overrideDiskInclChanged",
+                        "override": false,
+                        "read": "overrideDiskIncl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setOverrideDiskIncl"
+                    }
+                ],
+                "qualifiedClassName": "BlackHoleCore",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "lineNumber": 301,
+                        "name": "displayModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "lineNumber": 302,
+                        "name": "idleSecondsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "lineNumber": 303,
+                        "name": "playModeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "lineNumber": 304,
+                        "name": "slotSecondsChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "lineNumber": 305,
+                        "name": "videoAsIdleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "lineNumber": 306,
+                        "name": "autoStartChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "lineNumber": 307,
+                        "name": "launchMinimizedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "lineNumber": 309,
+                        "name": "screenTargetChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "lineNumber": 310,
+                        "name": "rendererRunningChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "lineNumber": 311,
+                        "name": "systemActiveChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "lineNumber": 312,
+                        "name": "currentPresetIndexChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "lineNumber": 313,
+                        "name": "currentPresetChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "lineNumber": 314,
+                        "name": "configLoaded",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 13,
+                        "lineNumber": 315,
+                        "name": "configSaved",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "lineNumber": 316,
+                        "name": "rendererStarted",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 15,
+                        "lineNumber": 317,
+                        "name": "rendererStopped",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "msg",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 16,
+                        "lineNumber": 318,
+                        "name": "rendererError",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 17,
+                        "lineNumber": 319,
+                        "name": "currentListChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 18,
+                        "lineNumber": 322,
+                        "name": "followMouseChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 19,
+                        "lineNumber": 323,
+                        "name": "randomPathChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 20,
+                        "lineNumber": 324,
+                        "name": "animationSpeedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 21,
+                        "lineNumber": 325,
+                        "name": "screenSwallowChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 22,
+                        "lineNumber": 326,
+                        "name": "distortionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 23,
+                        "lineNumber": 327,
+                        "name": "holeSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 24,
+                        "lineNumber": 328,
+                        "name": "growEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 25,
+                        "lineNumber": 329,
+                        "name": "initialSizeChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 26,
+                        "lineNumber": 332,
+                        "name": "idleWhitelistChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 27,
+                        "lineNumber": 333,
+                        "name": "idleBlacklistChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 28,
+                        "lineNumber": 336,
+                        "name": "scheduleEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 29,
+                        "lineNumber": 337,
+                        "name": "startHourChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 30,
+                        "lineNumber": 337,
+                        "name": "startMinuteChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 31,
+                        "lineNumber": 338,
+                        "name": "endHourChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 32,
+                        "lineNumber": 338,
+                        "name": "endMinuteChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 33,
+                        "lineNumber": 339,
+                        "name": "countdownEnabledChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 34,
+                        "lineNumber": 340,
+                        "name": "countdownMinutesChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 35,
+                        "lineNumber": 343,
+                        "name": "isDarkChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 36,
+                        "lineNumber": 344,
+                        "name": "followSystemChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 37,
+                        "lineNumber": 345,
+                        "name": "focusColorChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 38,
+                        "lineNumber": 346,
+                        "name": "skipExitDialogChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 39,
+                        "lineNumber": 347,
+                        "name": "defaultCloseActionChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 40,
+                        "lineNumber": 350,
+                        "name": "overrideHoleRadiusChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 41,
+                        "lineNumber": 351,
+                        "name": "overrideDiskGainChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 42,
+                        "lineNumber": 352,
+                        "name": "overrideDiskTempChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 43,
+                        "lineNumber": 353,
+                        "name": "overrideExposureChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 44,
+                        "lineNumber": 354,
+                        "name": "overrideSpdChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 45,
+                        "lineNumber": 355,
+                        "name": "overrideStarGainChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 46,
+                        "lineNumber": 356,
+                        "name": "overrideDiskInclChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "index": 47,
+                        "lineNumber": 279,
+                        "name": "loadConfig",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 48,
+                        "lineNumber": 280,
+                        "name": "saveConfig",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 49,
+                        "lineNumber": 281,
+                        "name": "resetDefaults",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 50,
+                        "lineNumber": 282,
+                        "name": "startRenderer",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 51,
+                        "lineNumber": 283,
+                        "name": "stopRenderer",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 52,
+                        "lineNumber": 284,
+                        "name": "applyAndStart",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 53,
+                        "lineNumber": 285,
+                        "name": "stopAll",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 54,
+                        "lineNumber": 286,
+                        "name": "selectPreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            },
+                            {
+                                "name": "param",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 55,
+                        "lineNumber": 287,
+                        "name": "updatePresetParam",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "param",
+                                "type": "QString"
+                            },
+                            {
+                                "name": "value",
+                                "type": "float"
+                            }
+                        ],
+                        "index": 56,
+                        "lineNumber": 288,
+                        "name": "updateCurrentPresetParam",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "from",
+                                "type": "int"
+                            },
+                            {
+                                "name": "to",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 57,
+                        "lineNumber": 289,
+                        "name": "movePreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 58,
+                        "lineNumber": 290,
+                        "name": "copyPreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 59,
+                        "lineNumber": 291,
+                        "name": "pastePreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 60,
+                        "lineNumber": 292,
+                        "name": "removePreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 61,
+                        "lineNumber": 293,
+                        "name": "createPresetList",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 62,
+                        "lineNumber": 294,
+                        "name": "renameCurrentList",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "index",
+                                "type": "int"
+                            }
+                        ],
+                        "index": 63,
+                        "lineNumber": 295,
+                        "name": "switchToList",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 64,
+                        "lineNumber": 296,
+                        "name": "deleteCurrentList",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 65,
+                        "lineNumber": 297,
+                        "name": "createPreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "name",
+                                "type": "QString"
+                            }
+                        ],
+                        "index": 66,
+                        "lineNumber": 298,
+                        "name": "renameCurrentPreset",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "private",
+                        "index": 67,
+                        "lineNumber": 445,
+                        "name": "checkIdle",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "blackholecore.h",
+        "outputRevision": 69
+    },
+    {
+        "classes": [
+            {
+                "className": "BlackholePreviewFBO",
+                "lineNumber": 11,
+                "methods": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "core",
+                                "type": "QObject*"
+                            }
+                        ],
+                        "index": 15,
+                        "lineNumber": 69,
+                        "name": "syncFromCore",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "lineNumber": 15,
+                        "name": "diskTemp",
+                        "notify": "diskTempChanged",
+                        "override": false,
+                        "read": "diskTemp",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskTemp"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 1,
+                        "lineNumber": 16,
+                        "name": "diskIncl",
+                        "notify": "diskInclChanged",
+                        "override": false,
+                        "read": "diskIncl",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskIncl"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 2,
+                        "lineNumber": 17,
+                        "name": "diskRoll",
+                        "notify": "diskRollChanged",
+                        "override": false,
+                        "read": "diskRoll",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskRoll"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 3,
+                        "lineNumber": 18,
+                        "name": "diskInner",
+                        "notify": "diskInnerChanged",
+                        "override": false,
+                        "read": "diskInner",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskInner"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 4,
+                        "lineNumber": 19,
+                        "name": "diskOuter",
+                        "notify": "diskOuterChanged",
+                        "override": false,
+                        "read": "diskOuter",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskOuter"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 5,
+                        "lineNumber": 20,
+                        "name": "diskOpac",
+                        "notify": "diskOpacChanged",
+                        "override": false,
+                        "read": "diskOpac",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskOpac"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 6,
+                        "lineNumber": 21,
+                        "name": "diskDopp",
+                        "notify": "diskDoppChanged",
+                        "override": false,
+                        "read": "diskDopp",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskDopp"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 7,
+                        "lineNumber": 22,
+                        "name": "diskBeam",
+                        "notify": "diskBeamChanged",
+                        "override": false,
+                        "read": "diskBeam",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskBeam"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 8,
+                        "lineNumber": 23,
+                        "name": "diskGain",
+                        "notify": "diskGainChanged",
+                        "override": false,
+                        "read": "diskGain",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskGain"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 9,
+                        "lineNumber": 24,
+                        "name": "diskContr",
+                        "notify": "diskContrChanged",
+                        "override": false,
+                        "read": "diskContr",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskContr"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 10,
+                        "lineNumber": 25,
+                        "name": "diskWind",
+                        "notify": "diskWindChanged",
+                        "override": false,
+                        "read": "diskWind",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskWind"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 11,
+                        "lineNumber": 26,
+                        "name": "diskSpeed",
+                        "notify": "diskSpeedChanged",
+                        "override": false,
+                        "read": "diskSpeed",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskSpeed"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 12,
+                        "lineNumber": 27,
+                        "name": "diskExpo",
+                        "notify": "diskExpoChanged",
+                        "override": false,
+                        "read": "diskExpo",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskExpo"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 13,
+                        "lineNumber": 28,
+                        "name": "diskStar",
+                        "notify": "diskStarChanged",
+                        "override": false,
+                        "read": "diskStar",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "float",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setDiskStar"
+                    },
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 14,
+                        "lineNumber": 31,
+                        "name": "running",
+                        "notify": "runningChanged",
+                        "override": false,
+                        "read": "running",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setRunning"
+                    }
+                ],
+                "qualifiedClassName": "BlackholePreviewFBO",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "lineNumber": 72,
+                        "name": "diskTempChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "lineNumber": 73,
+                        "name": "diskInclChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "lineNumber": 74,
+                        "name": "diskRollChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 3,
+                        "lineNumber": 75,
+                        "name": "diskInnerChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "lineNumber": 76,
+                        "name": "diskOuterChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "lineNumber": 77,
+                        "name": "diskOpacChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 6,
+                        "lineNumber": 78,
+                        "name": "diskDoppChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 7,
+                        "lineNumber": 79,
+                        "name": "diskBeamChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 8,
+                        "lineNumber": 80,
+                        "name": "diskGainChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 9,
+                        "lineNumber": 81,
+                        "name": "diskContrChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 10,
+                        "lineNumber": 82,
+                        "name": "diskWindChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 11,
+                        "lineNumber": 83,
+                        "name": "diskSpeedChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 12,
+                        "lineNumber": 84,
+                        "name": "diskExpoChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 13,
+                        "lineNumber": 85,
+                        "name": "diskStarChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 14,
+                        "lineNumber": 86,
+                        "name": "runningChanged",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuickFramebufferObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "blackholepreviewfbo.h",
+        "outputRevision": 69
+    },
+    {
+        "classes": [
+            {
+                "className": "SystemTray",
+                "lineNumber": 9,
+                "methods": [
+                    {
+                        "access": "public",
+                        "index": 4,
+                        "lineNumber": 20,
+                        "name": "show",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 5,
+                        "lineNumber": 21,
+                        "name": "hide",
+                        "returnType": "void"
+                    }
+                ],
+                "object": true,
+                "properties": [
+                    {
+                        "constant": false,
+                        "designable": true,
+                        "final": false,
+                        "index": 0,
+                        "lineNumber": 12,
+                        "name": "visible",
+                        "notify": "visibleChanged",
+                        "override": false,
+                        "read": "isVisible",
+                        "required": false,
+                        "scriptable": true,
+                        "stored": true,
+                        "type": "bool",
+                        "user": false,
+                        "virtual": false,
+                        "write": "setVisible"
+                    }
+                ],
+                "qualifiedClassName": "SystemTray",
+                "signals": [
+                    {
+                        "access": "public",
+                        "index": 0,
+                        "lineNumber": 27,
+                        "name": "visibleChanged",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 1,
+                        "lineNumber": 28,
+                        "name": "activated",
+                        "returnType": "void"
+                    },
+                    {
+                        "access": "public",
+                        "index": 2,
+                        "lineNumber": 29,
+                        "name": "exitRequested",
+                        "returnType": "void"
+                    }
+                ],
+                "slots": [
+                    {
+                        "access": "public",
+                        "arguments": [
+                            {
+                                "name": "window",
+                                "type": "QQuickWindow*"
+                            }
+                        ],
+                        "index": 3,
+                        "lineNumber": 24,
+                        "name": "setWindow",
+                        "returnType": "void"
+                    }
+                ],
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ]
+            }
+        ],
+        "inputFile": "systemtray.h",
+        "outputRevision": 69
+    }
+]

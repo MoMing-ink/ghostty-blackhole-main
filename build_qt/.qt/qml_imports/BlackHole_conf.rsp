@@ -1,0 +1,15 @@
+-rootPath
+D:/Projects/ghostty-blackhole-main-main/Blakhole_UI
+-cmake-output
+-output-file
+D:/Projects/ghostty-blackhole-main-main/build_qt/.qt/qml_imports/BlackHole_conf.cmake
+-importPath
+D:/Projects/ghostty-blackhole-main-main/build_qt
+-importPath
+D:/Projects/ghostty-blackhole-main-main/build_qt/BlakholeUI
+-importPath
+C:/msys64/ucrt64/share/qt6/qml
+-qrcFiles
+D:/Projects/ghostty-blackhole-main-main/build_qt/.qt/rcc/qmake_BlakholeUI.qrc
+D:/Projects/ghostty-blackhole-main-main/build_qt/.qt/rcc/BlackHole_raw_qml_0.qrc
+D:/Projects/ghostty-blackhole-main-main/build_qt/.qt/rcc/BlackHole_raw_qml_0_extra_qmldirs.qrc

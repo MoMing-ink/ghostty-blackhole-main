@@ -1,0 +1,412 @@
+{
+    "classes": [
+        {
+            "className": "BlackholePreviewFBO",
+            "lineNumber": 11,
+            "methods": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "core",
+                            "type": "QObject*"
+                        }
+                    ],
+                    "index": 15,
+                    "lineNumber": 69,
+                    "name": "syncFromCore",
+                    "returnType": "void"
+                }
+            ],
+            "object": true,
+            "properties": [
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 0,
+                    "lineNumber": 15,
+                    "name": "diskTemp",
+                    "notify": "diskTempChanged",
+                    "override": false,
+                    "read": "diskTemp",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskTemp"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 1,
+                    "lineNumber": 16,
+                    "name": "diskIncl",
+                    "notify": "diskInclChanged",
+                    "override": false,
+                    "read": "diskIncl",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskIncl"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 2,
+                    "lineNumber": 17,
+                    "name": "diskRoll",
+                    "notify": "diskRollChanged",
+                    "override": false,
+                    "read": "diskRoll",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskRoll"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 3,
+                    "lineNumber": 18,
+                    "name": "diskInner",
+                    "notify": "diskInnerChanged",
+                    "override": false,
+                    "read": "diskInner",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskInner"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 4,
+                    "lineNumber": 19,
+                    "name": "diskOuter",
+                    "notify": "diskOuterChanged",
+                    "override": false,
+                    "read": "diskOuter",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskOuter"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 5,
+                    "lineNumber": 20,
+                    "name": "diskOpac",
+                    "notify": "diskOpacChanged",
+                    "override": false,
+                    "read": "diskOpac",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskOpac"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 6,
+                    "lineNumber": 21,
+                    "name": "diskDopp",
+                    "notify": "diskDoppChanged",
+                    "override": false,
+                    "read": "diskDopp",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskDopp"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 7,
+                    "lineNumber": 22,
+                    "name": "diskBeam",
+                    "notify": "diskBeamChanged",
+                    "override": false,
+                    "read": "diskBeam",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskBeam"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 8,
+                    "lineNumber": 23,
+                    "name": "diskGain",
+                    "notify": "diskGainChanged",
+                    "override": false,
+                    "read": "diskGain",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskGain"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 9,
+                    "lineNumber": 24,
+                    "name": "diskContr",
+                    "notify": "diskContrChanged",
+                    "override": false,
+                    "read": "diskContr",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskContr"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 10,
+                    "lineNumber": 25,
+                    "name": "diskWind",
+                    "notify": "diskWindChanged",
+                    "override": false,
+                    "read": "diskWind",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskWind"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 11,
+                    "lineNumber": 26,
+                    "name": "diskSpeed",
+                    "notify": "diskSpeedChanged",
+                    "override": false,
+                    "read": "diskSpeed",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskSpeed"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 12,
+                    "lineNumber": 27,
+                    "name": "diskExpo",
+                    "notify": "diskExpoChanged",
+                    "override": false,
+                    "read": "diskExpo",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskExpo"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 13,
+                    "lineNumber": 28,
+                    "name": "diskStar",
+                    "notify": "diskStarChanged",
+                    "override": false,
+                    "read": "diskStar",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setDiskStar"
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 14,
+                    "lineNumber": 31,
+                    "name": "running",
+                    "notify": "runningChanged",
+                    "override": false,
+                    "read": "running",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "bool",
+                    "user": false,
+                    "virtual": false,
+                    "write": "setRunning"
+                }
+            ],
+            "qualifiedClassName": "BlackholePreviewFBO",
+            "signals": [
+                {
+                    "access": "public",
+                    "index": 0,
+                    "lineNumber": 72,
+                    "name": "diskTempChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 1,
+                    "lineNumber": 73,
+                    "name": "diskInclChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 2,
+                    "lineNumber": 74,
+                    "name": "diskRollChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 3,
+                    "lineNumber": 75,
+                    "name": "diskInnerChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 4,
+                    "lineNumber": 76,
+                    "name": "diskOuterChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 5,
+                    "lineNumber": 77,
+                    "name": "diskOpacChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 6,
+                    "lineNumber": 78,
+                    "name": "diskDoppChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 7,
+                    "lineNumber": 79,
+                    "name": "diskBeamChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 8,
+                    "lineNumber": 80,
+                    "name": "diskGainChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 9,
+                    "lineNumber": 81,
+                    "name": "diskContrChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 10,
+                    "lineNumber": 82,
+                    "name": "diskWindChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 11,
+                    "lineNumber": 83,
+                    "name": "diskSpeedChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 12,
+                    "lineNumber": 84,
+                    "name": "diskExpoChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 13,
+                    "lineNumber": 85,
+                    "name": "diskStarChanged",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "index": 14,
+                    "lineNumber": 86,
+                    "name": "runningChanged",
+                    "returnType": "void"
+                }
+            ],
+            "superClasses": [
+                {
+                    "access": "public",
+                    "name": "QQuickFramebufferObject"
+                }
+            ]
+        }
+    ],
+    "inputFile": "blackholepreviewfbo.h",
+    "outputRevision": 69
+}

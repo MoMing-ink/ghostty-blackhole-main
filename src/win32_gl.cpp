@@ -319,19 +319,21 @@ void Win32GL_DrainMessages(Win32GL& wgl) {
 
 void Win32GL_Show(Win32GL& wgl) {
     if (!wgl.active || !wgl.hwnd) return;
-    
-    // 将窗口从屏幕外移回屏幕左上角，显式设置全屏大小
-    SetWindowPos(wgl.hwnd, HWND_TOPMOST, 0, 0, wgl.width, wgl.height,
+
+    // Win11 25H2 修复: 显示窗口但保持在屏幕外 (-32000,-32000)
+    // 25H2 修改了 DWM 对 Layered window 的合成时序, alpha=0 期间仍可能合成空内容帧
+    // 修复方案: 窗口在屏幕外完成 ShowWindow + 第一帧渲染 + alpha=255
+    //          然后由 Win32GL_MoveToScreen 移到屏幕, 此时窗口已有内容无闪烁
+    SetWindowPos(wgl.hwnd, HWND_TOPMOST, -32000, -32000, wgl.width, wgl.height,
                  SWP_NOACTIVATE | SWP_NOSENDCHANGING);
-    
-    // 显示窗口
+
     ShowWindow(wgl.hwnd, SW_SHOWNOACTIVATE);
-    
-    // 再次确保位置、大小和置顶
-    SetWindowPos(wgl.hwnd, HWND_TOPMOST, 0, 0, wgl.width, wgl.height,
+
+    // 再次确保位置、大小和置顶 (仍在屏幕外)
+    SetWindowPos(wgl.hwnd, HWND_TOPMOST, -32000, -32000, wgl.width, wgl.height,
                  SWP_NOACTIVATE | SWP_SHOWWINDOW);
-    
-    fprintf(stderr, "[Win32GL] Window moved to screen and shown\n");
+
+    fprintf(stderr, "[Win32GL] Window shown offscreen (25H2 flicker fix)\n");
 }
 
 void Win32GL_EnableLayered(Win32GL& wgl) {
@@ -340,9 +342,21 @@ void Win32GL_EnableLayered(Win32GL& wgl) {
     // 窗口创建时已是 WS_EX_LAYERED（alpha=0 透明）
     // 这里只需设 alpha=255 让窗口可见，不需要改变扩展样式
     // 避免运行时 SetWindowLongPtrW 切换 WS_EX_LAYERED 导致 DWM 重新合成闪烁
+    // 此时窗口仍在屏幕外 (由 Win32GL_Show 保证), DWM 合成空内容用户也看不到
     SetLayeredWindowAttributes(wgl.hwnd, 0, 255, LWA_ALPHA);
 
-    fprintf(stderr, "[Win32GL] Layered alpha set to 255\n");
+    fprintf(stderr, "[Win32GL] Layered alpha set to 255 (offscreen)\n");
+}
+
+void Win32GL_MoveToScreen(Win32GL& wgl) {
+    if (!wgl.active || !wgl.hwnd) return;
+
+    // 把窗口从屏幕外 (-32000,-32000) 移到屏幕左上角 (0,0)
+    // 此时窗口已有内容 (第一帧已渲染) 且 alpha=255, 移动到屏幕时无空白帧
+    SetWindowPos(wgl.hwnd, HWND_TOPMOST, 0, 0, wgl.width, wgl.height,
+                 SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+
+    fprintf(stderr, "[Win32GL] Window moved to screen (0,0)\n");
 }
 
 void Win32GL_Hide(Win32GL& wgl) {

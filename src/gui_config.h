@@ -1,4 +1,6 @@
-// gui_config.h  ImGui config panel with preset editing
+// gui_config.h  Preset definitions + config file I/O
+// ImGui config panel has been replaced by Qt QML UI (Blakhole_UI/)
+// This file now only provides data structures and file persistence
 #pragma once
 
 struct DiskPreset {
@@ -39,6 +41,5 @@ struct BlackholeConfig {
 };
 
 void InitDefaultPresets(BlackholeConfig& cfg);
-bool GUI_ShowConfigPanel(BlackholeConfig& cfg);
 void SavePresetsToFile(const BlackholeConfig& cfg, const char names[16][64]);
 bool LoadPresetsFromFile(BlackholeConfig& cfg, char names[16][64]);

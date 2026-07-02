@@ -32,10 +32,8 @@
 #define DWMWA_BORDER_COLOR 34  // Windows 11 accent border (not in SDK 8.1)
 #endif
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+// GLFW/ImGui 已移除：QML UI (Blakhole_UI/) 接管配置面板
+// blackhole_render.exe 现在只是 --render 渲染器，使用 Win32 + WGL
 #ifndef BLACKHOLE_USE_D3D11
 #include <GL/gl.h>
 #endif
@@ -195,14 +193,32 @@ static GLuint createProgram(const std::string& vert, const std::string& frag, FI
     return prog;
 }
 
-static bool buildFragmentShader(std::string& out, FILE* debugLog) {
+// 读取 blackhole_advanced.txt 中的 screenSwallow 字段
+// 由 QML UI (BlackHole.exe) 写入，控制是否取消黑洞活动范围限制
+static bool LoadAdvancedScreenSwallow() {
+    std::ifstream f("blackhole_advanced.txt");
+    if (!f) return false;  // 文件不存在 = 默认关闭
+    std::string line;
+    while (std::getline(f, line)) {
+        // 匹配 "screenSwallow=1" 或 "screenSwallow=0"
+        if (line.compare(0, 13, "screenSwallow") == 0) {
+            size_t eq = line.find('=');
+            if (eq != std::string::npos) {
+                return std::atoi(line.c_str() + eq + 1) != 0;
+            }
+        }
+    }
+    return false;
+}
+
+static bool buildFragmentShader(std::string& out, bool swallowScreen, FILE* debugLog) {
     std::string header = readFile("shaders/frag_desktop_header.glsl");
     std::string body   = readFile("blackhole.glsl");
     if (header.empty() || body.empty()) {
         if (debugLog) { fprintf(debugLog, "[FAIL] Shader file empty: header=%zu, body=%zu\n", header.size(), body.size()); fflush(debugLog); }
         return false;
     }
-    
+
     // 检查是否还有 BOM
     if (debugLog) {
         fprintf(debugLog, "[DEBUG] header first 3 bytes: %02x %02x %02x\n", 
@@ -316,7 +332,8 @@ static bool buildFragmentShader(std::string& out, FILE* debugLog) {
     }
 
     // ---- Full-screen fixes: remove WORK_AREA shield so hole can roam entire screen ----
-    {
+    // 仅在「取消黑洞范围限制」(screenSwallow) 开启时应用，否则保留原 WORK_AREA 限制
+    if (swallowScreen) {
         // Set WORK_AREA to 0 so position constraints allow full-screen range
         size_t p = body.find("const float WORK_AREA");
         if (p != std::string::npos) {
@@ -675,8 +692,8 @@ int main(int argc, char* argv[]) {
     }
 
     bool isRenderer = (argc >= 2 && strcmp(argv[1], "--render") == 0);
-    bool isConfig = (argc >= 2 && strcmp(argv[1], "--config") == 0);
-    bool isMonitor = (argc >= 2 && strcmp(argv[1], "--monitor") == 0);
+    // --config/--monitor 已弃用：QML UI (BlackHole.exe) 接管配置面板、
+    // 空闲检测、托盘图标、进程管理。blackhole_render.exe 现在只是渲染器。
 
     // 直接写入调试文件
     FILE* debugLog = fopen("blackhole_debug.txt", "w");
@@ -687,16 +704,15 @@ int main(int argc, char* argv[]) {
         fflush(debugLog);
     }
 
-    // 主程序启动时杀掉旧的 blackhole 进程（避免新旧实例冲突）
-    // --render 子进程不杀（它由 monitor 管理）
-    // --config 子进程也不杀（它由托盘菜单调出，杀它会误杀正在运行的 monitor）
-    if (!isRenderer && !isConfig) {
+    // 主程序启动时杀掉旧的 blackhole_render 进程（避免新旧实例冲突）
+    // --render 子进程不杀（它由 QML UI 通过 QProcess 管理）
+    if (!isRenderer) {
         DWORD myPid = GetCurrentProcessId();
         HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         PROCESSENTRY32 pe = { sizeof(pe) };
         if (Process32First(snap, &pe)) {
             do {
-                if (stricmp(pe.szExeFile, "blackhole.exe") == 0 && pe.th32ProcessID != myPid) {
+                if (stricmp(pe.szExeFile, "blackhole_render.exe") == 0 && pe.th32ProcessID != myPid) {
                     HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
                     if (h) { TerminateProcess(h, 0); CloseHandle(h); }
                 }
@@ -714,125 +730,32 @@ int main(int argc, char* argv[]) {
         if (!LoadPresetsFromFile(cfg, names))
             InitDefaultPresets(cfg);
         cfg.mode = 0;
-    } else if (isConfig) {
-        // === CONFIG ONLY: show config panel, save and restart monitor ===
-        if (!glfwInit()) { fprintf(stderr, "glfwInit failed\n"); return 1; }
-        if (!GUI_ShowConfigPanel(cfg)) { glfwTerminate(); return 0; }
-        // Save config
-        char names[64][64] = {};
-        SavePresetsToFile(cfg, names);
-        glfwTerminate();
-        // 保存后重启 monitor（用 --monitor 跳过配置面板，直接进托盘监控）
-        char selfPath[MAX_PATH];
-        GetModuleFileNameA(NULL, selfPath, MAX_PATH);
-        char cmd[MAX_PATH + 16];
-        snprintf(cmd, sizeof(cmd), "\"%s\" --monitor", selfPath);
-        STARTUPINFOA si = {}; si.cb = sizeof(si);
-        PROCESS_INFORMATION pi;
-        CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        return 0;
     } else {
-        // === CONFIG + MONITOR (normal launch) or MONITOR ONLY (--monitor) ===
+        // === 非 --render 模式: 启动 QML UI (BlackHole.exe) ===
+        // QML UI 接管配置面板、空闲检测、托盘图标、进程管理
+        // 通过 QProcess 调用 blackhole_render.exe --render 作为渲染器
         char selfPath[MAX_PATH];
         GetModuleFileNameA(NULL, selfPath, MAX_PATH);
-
-        if (isMonitor) {
-            // --monitor: skip config panel, load from file
-            char names[64][64];
-            if (!LoadPresetsFromFile(cfg, names))
-                InitDefaultPresets(cfg);
-            if (debugLog) { fprintf(debugLog, "[Monitor] loaded idleSec=%d mode=%d\n", cfg.idleSec, cfg.mode); fflush(debugLog); }
+        char* s = strrchr(selfPath, '\\'); if (s) *s = 0;
+        char uiPath[MAX_PATH];
+        snprintf(uiPath, sizeof(uiPath), "%s\\BlackHole.exe", selfPath);
+        if (GetFileAttributesA(uiPath) != INVALID_FILE_ATTRIBUTES) {
+            // 启动 QML UI 并退出（UI 进程会管理一切）
+            STARTUPINFOA si = {}; si.cb = sizeof(si);
+            PROCESS_INFORMATION pi;
+            CreateProcessA(NULL, uiPath, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            return 0;
         } else {
-            // Normal launch: show config panel first
-            if (!glfwInit()) { fprintf(stderr, "glfwInit failed\n"); return 1; }
-            if (!GUI_ShowConfigPanel(cfg)) { glfwTerminate(); return 0; }
-            char names[64][64] = {};
-            SavePresetsToFile(cfg, names);
-            glfwTerminate();
+            // QML UI 不存在，提示用户
+            MessageBoxA(NULL,
+                "无法找到 BlackHole.exe\n\n"
+                "QML UI 是主程序入口，blackhole_render.exe --render 是渲染器。\n"
+                "请先构建 Blakhole_UI 或联系开发者。",
+                "Blackhole", MB_OK | MB_ICONERROR);
+            return 1;
         }
-
-        // === Tray icon monitor ===
-        #define WM_TRAYICON (WM_USER + 1)
-        #define ID_TRAY_EXIT 1001
-        #define ID_TRAY_CONFIG 1002
-
-        NOTIFYICONDATAA nid = {};
-        nid.cbSize = sizeof(nid);
-        nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-        nid.uCallbackMessage = WM_TRAYICON;
-        nid.hIcon = LoadIconW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(100));
-        strcpy(nid.szTip, "Black Hole Monitor");
-
-        // Create hidden message-only window for tray
-        WNDCLASSA wc = {};
-        wc.lpfnWndProc = [](HWND h, UINT m, WPARAM w, LPARAM l) -> LRESULT {
-            if (m == WM_TRAYICON && l == WM_RBUTTONUP) {
-                HMENU menu = CreatePopupMenu();
-                AppendMenuW(menu, MF_STRING, ID_TRAY_CONFIG, L"配置");
-                AppendMenuW(menu, MF_STRING, ID_TRAY_EXIT, L"退出");
-                POINT pt; GetCursorPos(&pt);
-                SetForegroundWindow(h);
-                TrackPopupMenu(menu, TPM_RIGHTALIGN|TPM_BOTTOMALIGN, pt.x, pt.y, 0, h, NULL);
-                DestroyMenu(menu);
-            }
-            if (m == WM_COMMAND && LOWORD(w) == ID_TRAY_EXIT)
-                PostQuitMessage(0);
-            if (m == WM_COMMAND && LOWORD(w) == ID_TRAY_CONFIG) {
-                // 启动配置子进程，保存后由它重启 monitor（--monitor 模式）
-                auto* pSelf = (char*)GetWindowLongPtrA(h, GWLP_USERDATA);
-                char cmd[MAX_PATH + 16];
-                snprintf(cmd, sizeof(cmd), "\"%s\" --config", pSelf);
-                STARTUPINFOA si = {}; si.cb = sizeof(si);
-                PROCESS_INFORMATION pi;
-                CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
-                CloseHandle(pi.hProcess);
-                CloseHandle(pi.hThread);
-                // 当前 monitor 退出：托盘图标和渲染进程由消息循环后的正常清理路径处理
-                PostQuitMessage(0);
-            }
-            if (m == WM_TIMER && w == 1) {
-                auto* pSelf = (char*)GetWindowLongPtrA(h, GWLP_USERDATA);
-                auto* pCfg  = (BlackholeConfig*)(pSelf + MAX_PATH);
-                bool idle = isIdle((DWORD)pCfg->idleSec * 1000) && (pCfg->videoAsIdle || !isWatchingVideo());
-                bool running = MonitorRunning();
-                if (pCfg->mode == 0) {
-                    if (!running) MonitorSpawn(pSelf);
-                } else {
-                    if (idle && !running) MonitorSpawn(pSelf);
-                    if (!idle && running)  MonitorKill();
-                }
-            }
-            return DefWindowProcA(h, m, w, l);
-        };
-        wc.hInstance = GetModuleHandleA(NULL);
-        wc.lpszClassName = "BHMon";
-        RegisterClassA(&wc);
-        HWND monHwnd = CreateWindowA("BHMon", "", 0,0,0,0,0, NULL, NULL, wc.hInstance, NULL);
-
-        // Store selfPath + cfg in window userdata for timer callback
-        char userBuf[MAX_PATH + sizeof(BlackholeConfig)];
-        memcpy(userBuf, selfPath, MAX_PATH);
-        memcpy(userBuf + MAX_PATH, &cfg, sizeof(cfg));
-        SetWindowLongPtrA(monHwnd, GWLP_USERDATA, (LONG_PTR)userBuf);
-
-        nid.hWnd = monHwnd;
-        Shell_NotifyIconA(NIM_ADD, &nid);
-
-        // Start renderer immediately in mode 0
-        if (cfg.mode == 0) MonitorSpawn(selfPath);
-
-        SetTimer(monHwnd, 1, 1000, NULL);  // 1s detection for gaming responsiveness
-        fprintf(stderr, "[Monitor] mode=%d idleSec=%d (tray icon ready)\n", cfg.mode, cfg.idleSec);
-
-        MSG msg;
-        while (GetMessageA(&msg, NULL, 0, 0)) { TranslateMessage(&msg); DispatchMessageA(&msg); }
-
-        KillTimer(monHwnd, 1);
-        Shell_NotifyIconA(NIM_DELETE, &nid);
-        MonitorKill();
-        return 0;
     }
 
 
@@ -888,7 +811,11 @@ int main(int argc, char* argv[]) {
     }
     if (debugLog) { fprintf(debugLog, "[OK] vert.glsl loaded (%zu bytes)\n", vertSrc.size()); fflush(debugLog); }
     
-    if (!buildFragmentShader(fragSrc, debugLog)) {
+    // 读取 advanced 配置中的 screenSwallow (取消黑洞范围限制)
+    bool swallowScreen = LoadAdvancedScreenSwallow();
+    if (debugLog) { fprintf(debugLog, "[CFG] screenSwallow (取消范围限制) = %s\n", swallowScreen ? "ON" : "OFF"); fflush(debugLog); }
+
+    if (!buildFragmentShader(fragSrc, swallowScreen, debugLog)) {
         if (debugLog) { fprintf(debugLog, "[FAIL] buildFragmentShader failed!\n"); fclose(debugLog); }
         GLTex_Shutdown(glTex); WGC_Release(wgc); Win32GL_Shutdown(wgl); return 1;
     }
@@ -998,16 +925,15 @@ int main(int argc, char* argv[]) {
         if (debugLog) { fprintf(debugLog, "[WARN] Only %d frames after %d attempts\n", stableFrames, warmupAttempts); fflush(debugLog); }
     }
 
-    // ---- 显示窗口（屏幕外初始化已完成，移入并显示） ----
-    // 关键流程：窗口创建时已是 WS_EX_LAYERED + alpha=0（完全透明）
-    // 1. 移窗到屏幕 + 显示（alpha=0，用户看不到空白黑屏）
-    // 2. 立即渲染第一帧（仍在 alpha=0 状态，避免 DWM 闪烁）
-    // 3. 设 alpha=255 让窗口可见（此时已有内容，无空白帧）
-    if (debugLog) { fprintf(debugLog, "[Init] Showing window (alpha=0)...\n"); fflush(debugLog); }
+    // ---- 显示窗口（保持在屏幕外, 仅 ShowWindow） ----
+    // Win11 25H2 修复: 窗口保持在屏幕外 (-32000,-32000) 显示
+    // 25H2 修改了 DWM 对 Layered window 的合成时序, alpha=0 期间仍可能合成空内容帧
+    // 流程: Show(屏幕外, alpha=0) → 渲染第一帧 → EnableLayered(alpha=255) → MoveToScreen(0,0)
+    if (debugLog) { fprintf(debugLog, "[Init] Showing window offscreen (alpha=0, 25H2 fix)...\n"); fflush(debugLog); }
     Win32GL_Show(wgl);
     Win32GL_PollEvents(wgl);
 
-    // 先渲染一帧保证窗口有内容（此时 alpha=0 透明，用户看不到中间态）
+    // 先渲染一帧保证窗口有内容（窗口在屏幕外 alpha=0, 用户看不到中间态）
     {
         ID3D11Texture2D* frame = WGC_GetFrame(wgc);
         if (frame) {
@@ -1058,8 +984,14 @@ int main(int argc, char* argv[]) {
     }
 
     // 渲染完第一帧后才让窗口可见（alpha=255）
-    // 此时窗口已有黑洞内容，不会出现空白黑屏帧
+    // 此时窗口仍在屏幕外 (-32000,-32000), DWM 合成空内容用户也看不到
     Win32GL_EnableLayered(wgl);
+
+    // Win11 25H2 修复: 此时窗口已有内容且 alpha=255, 才移到屏幕 (0,0)
+    // 移动期间 DWM 合成的过渡帧也包含黑洞内容, 不会闪空白
+    Win32GL_MoveToScreen(wgl);
+    Win32GL_PollEvents(wgl);
+
     // 不再隐藏系统光标 — WGC 已通过 IsCursorCaptureEnabled=false 禁用光标捕获，
     // 捕获的纹理不含光标，不会出现双重光标，系统光标始终保持正常可用
     
