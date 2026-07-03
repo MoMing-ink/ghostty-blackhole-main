@@ -382,6 +382,11 @@ private:
     bool    m_autoStart    = false;
     bool    m_launchMinimized  = false;
 
+    // 视频检测迟滞: 视频播放中音频短暂静默 (对话间隙/过场) 不立即解除视频状态
+    // m_videoSilentMs: 当前连续静默毫秒数, m_wasWatchingVideo: 上一次 checkIdle 是否在看视频
+    qint64 m_videoSilentMs  = 0;
+    bool   m_wasWatchingVideo = false;
+
     int     m_screenTarget = 0;  // 0=主屏, 1=副屏, 2=跨屏, 3=一屏一黑洞
 
     // 当前预设

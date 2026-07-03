@@ -1178,11 +1178,27 @@ void BlackHoleCore::checkIdle()
                 sc->Release();
             }
             se->Release(); mgr->Release();
-            watchingVideo = hasAudio;
+
+            // 视频检测迟滞: 视频播放中音频短暂静默 (对话间隙/过场) 不立即解除
+            // - 有音频: 重置静默计数, 判定为视频
+            // - 无音频但上次在看视频: 累加静默时间, 5秒内仍视为视频
+            // - 其他: 非视频
+            if (hasAudio) {
+                m_videoSilentMs = 0;
+                watchingVideo = true;
+            } else if (m_wasWatchingVideo) {
+                m_videoSilentMs += 1000;  // checkIdle 定时器1秒触发一次
+                watchingVideo = (m_videoSilentMs < 5000);
+            } else {
+                watchingVideo = false;
+            }
         }
     }
 
 check_foreground_done:
+
+    // 保存本次状态供下次迟滞判断使用
+    m_wasWatchingVideo = watchingVideo;
 
     // videoAsIdle: 视频播放时不阻止黑洞触发
     bool blocked = watchingVideo && !m_videoAsIdle;
