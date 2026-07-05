@@ -16,6 +16,10 @@ struct WGCCapture {
     // Staging texture for GPU-CPU readback
     ID3D11Texture2D*     stagingTex = nullptr;
 
+    // 预创建的 fence query: 复用避免每帧 CreateQuery/Release 的 D3D11 内核调用开销
+    // 减少 GPU 同步点的帧时长波动 (缓解轻微卡顿)
+    ID3D11Query*         frameFence = nullptr;
+
     int width  = 0;
     int height = 0;
     bool active = false;

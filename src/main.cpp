@@ -998,8 +998,6 @@ int main(int argc, char* argv[]) {
     float bornProgress = 0.01f;
     bool exiting = false;
     double exitStart = 0;
-    int frames = 0; double lastFps = startTime;
-    char title[128];
 
     if (!useWGC) { ID3D11Texture2D* f = DXGI_GetFrame(dxgi); if (f) f->Release(); }
 
@@ -1119,12 +1117,8 @@ int main(int argc, char* argv[]) {
 
         Win32GL_SwapBuffers(wgl);
 
-        frames++;
-        if (now - lastFps >= 1.0) {
-            snprintf(title, sizeof(title), "Black Hole [%d FPS]", frames);
-            Win32GL_SetWindowTitle(wgl, title);
-            frames=0; lastFps=now;
-        }
+        // 不更新窗口标题: 窗口是 WS_EX_LAYERED|TOPMOST 全屏覆盖, 用户看不到标题栏
+        // SetWindowTextW 会触发 WM_NCPAINT + DWM 重新合成窗口层, 每秒一次造成轻微闪屏
     }
 
     GLTex_Shutdown(glTex);

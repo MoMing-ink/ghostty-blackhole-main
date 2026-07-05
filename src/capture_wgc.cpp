@@ -269,6 +269,15 @@ bool WGC_Init(WGCCapture& wgc) {
         return false;
     }
 
+    // 预创建 fence query 复用, 避免每帧 CreateQuery/Release
+    D3D11_QUERY_DESC qdesc = { D3D11_QUERY_EVENT, 0 };
+    hr = wgc.d3dDev->CreateQuery(&qdesc, &wgc.frameFence);
+    if (FAILED(hr)) {
+        fprintf(stderr, "[WGC] Create frame fence failed: 0x%08X\n", (unsigned)hr);
+        // 非致命: fence 缺失时 CopyToStaging 会跳过 GPU 同步, 可能偶发数据撕裂
+        // 但程序仍可运行
+    }
+
     wgc.active = true;
     fprintf(stderr, "[WGC] Capture ready: %dx%d\n", wgc.width, wgc.height);
     return true;
@@ -323,13 +332,11 @@ bool WGC_CopyToStaging(WGCCapture& wgc, ID3D11Texture2D* srcTex,
 
     // D3D11 fence: ensure CopyResource completes before CPU Map.
     // Without this, high-fps GPU pipelining can return partially-written data.
-    ID3D11Query* fence = nullptr;
-    D3D11_QUERY_DESC qdesc = { D3D11_QUERY_EVENT, 0 };
-    if (SUCCEEDED(wgc.d3dDev->CreateQuery(&qdesc, &fence))) {
-        wgc.d3dCtx->End(fence);
-        while (wgc.d3dCtx->GetData(fence, nullptr, 0, 0) == S_FALSE)
+    // 使用预创建的 frameFence 复用, 避免每帧 CreateQuery/Release 内核开销
+    if (wgc.frameFence) {
+        wgc.d3dCtx->End(wgc.frameFence);
+        while (wgc.d3dCtx->GetData(wgc.frameFence, nullptr, 0, 0) == S_FALSE)
             ;  // spin-wait for GPU
-        fence->Release();
     }
 
     // Map staging for CPU read
@@ -343,6 +350,7 @@ void WGC_UnmapStaging(WGCCapture& wgc) {
 }
 
 void WGC_Release(WGCCapture& wgc) {
+    if (wgc.frameFence) { wgc.frameFence->Release(); wgc.frameFence = nullptr; }
     if (wgc.stagingTex) { wgc.stagingTex->Release(); wgc.stagingTex = nullptr; }
 
     if (wgc.session) {
