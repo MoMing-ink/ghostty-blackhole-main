@@ -8,7 +8,7 @@
                         {
                             "codegenResult": 2,
                             "column": 33,
-                            "durationMicroseconds": 1000,
+                            "durationMicroseconds": 0,
                             "functionName": "drawerColor",
                             "line": 11,
                             "message": "Cannot access value for name theme"
@@ -120,7 +120,7 @@
                         {
                             "codegenResult": 2,
                             "column": 25,
-                            "durationMicroseconds": 1000,
+                            "durationMicroseconds": 0,
                             "functionName": "shadowBlur",
                             "line": 49,
                             "message": "Cannot access value for name theme"
@@ -128,7 +128,7 @@
                         {
                             "codegenResult": 2,
                             "column": 35,
-                            "durationMicroseconds": 1000,
+                            "durationMicroseconds": 0,
                             "functionName": "shadowVerticalOffset",
                             "line": 50,
                             "message": "Cannot access value for name theme"
@@ -176,7 +176,7 @@
                         {
                             "codegenResult": 0,
                             "column": 27,
-                            "durationMicroseconds": 1000,
+                            "durationMicroseconds": 0,
                             "functionName": "fill",
                             "line": 57,
                             "message": ""

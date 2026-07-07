@@ -128,7 +128,7 @@
                         {
                             "codegenResult": 2,
                             "column": 18,
-                            "durationMicroseconds": 11000,
+                            "durationMicroseconds": 16000,
                             "functionName": "onPaint",
                             "line": 37,
                             "message": "Cannot access value for name diskStar"

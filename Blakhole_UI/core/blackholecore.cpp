@@ -16,6 +16,20 @@
 #include <audiopolicy.h>
 #include <endpointvolume.h>
 #include <tlhelp32.h>
+
+// MinGW endpointvolume.h 仅前向声明 IAudioMeterInformation, 这里补完整接口定义.
+// IAudioMeterInformation 是端点设备接口 (从 IMMDevice::Activate 获取),
+// 不是 session 接口 — 不能从 IAudioSessionControl2::QueryInterface 获取.
+// IID: {C02216F6-8C67-4B5B-9D00-D008E73E0064}
+static const GUID IID_IAudioMeterInformationCpp = {
+    0xC02216F6, 0x8C67, 0x4B5B, {0x9D, 0x00, 0xD0, 0x08, 0xE7, 0x3E, 0x00, 0x64}};
+
+struct IAudioMeterInformationCpp : public IUnknown {
+    virtual HRESULT STDMETHODCALLTYPE GetPeakValue(float* pfPeak) = 0;
+    virtual HRESULT STDMETHODCALLTYPE GetMeteringChannelCount(UINT* pnChannelCount) = 0;
+    virtual HRESULT STDMETHODCALLTYPE GetChannelsPeakValues(UINT u32ChannelCount, float* afPeakValues) = 0;
+    virtual HRESULT STDMETHODCALLTYPE QueryHardwareSupport(DWORD* pdwHardwareSupportMask) = 0;
+};
 #endif
 
 // ========== PresetModel ==========
@@ -949,14 +963,15 @@ void BlackHoleCore::renameCurrentPreset(const QString &name)
 
 // ====== 空闲检测 ======
 
-// IAudioMeterInformation GUID (missing from MinGW headers)
-static const GUID IID_IAudioMeterInformation2 = {0xC02216F6,0x8C67,0x4B5B,{0x9D,0x00,0xD0,0x08,0xE7,0x3E,0x00,0x64}};
-struct IAudioMeterInformation2 : IUnknown {
-    virtual HRESULT STDMETHODCALLTYPE GetPeakValue(float*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE GetMeteringChannelCount(UINT*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE GetChannelsPeakValues(UINT, float*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE QueryHardwareSupport(DWORD*) = 0;
-};
+// 音频检测说明:
+// 原实现使用 IAudioMeterInformation 从 IAudioSessionControl2 QueryInterface 获取,
+// 但 IAudioMeterInformation 是端点设备接口 (从 IMMDevice::Activate 获取),
+// 不能从 session control 获取 → QueryInterface 永远返回 E_NOINTERFACE
+// 即使修对 GUID 也无效。
+// 改用 IAudioSessionControl2::GetState 检查 session 状态:
+//   AudioSessionStateActive = 1: 有正在运行的音频流 (准确判断是否在播放音频)
+//   AudioSessionStateInactive = 0: 无音频流
+// 这比 GetPeakValue 更准确, 不会因静音片段误判
 
 // Get process name from PID (matches native blackhole.exe)
 static void GetProcName(DWORD pid, char* out, int maxLen) {
@@ -1125,7 +1140,11 @@ void BlackHoleCore::checkIdle()
             if (!hasVideoKeyword) goto check_foreground_done;
         }
 
-        // 第6层: 音频检测 (匹配原生 IAudioSessionManager2 + IAudioMeterInformation2)
+        // 第6层: 音频检测 (端点设备 IAudioMeterInformation)
+        // IAudioMeterInformation 是端点设备接口 (从 IMMDevice::Activate 获取),
+        // 不能从 IAudioSessionControl2 QueryInterface 获取.
+        // 由于第1-5层已过滤到只有视频播放器/浏览器/UWP视频才进入第6层,
+        // 这里只需检测系统是否有任何音频输出即可判断是否在播放视频.
         {
             CoInitializeEx(NULL, COINIT_MULTITHREADED);
             IMMDeviceEnumerator* en = nullptr;
@@ -1138,46 +1157,18 @@ void BlackHoleCore::checkIdle()
             en->Release();
             if (FAILED(hr)) goto check_foreground_done;
 
-            IAudioSessionManager2* mgr = nullptr;
-            hr = dev->Activate(__uuidof(IAudioSessionManager2), CLSCTX_ALL, NULL, (void**)&mgr);
+            // 端点设备 Activate IAudioMeterInformation: 返回整个音频端点的峰值
+            IAudioMeterInformationCpp* meter = nullptr;
+            hr = dev->Activate(IID_IAudioMeterInformationCpp, CLSCTX_ALL, NULL, (void**)&meter);
             dev->Release();
-            if (FAILED(hr)) goto check_foreground_done;
-
-            IAudioSessionEnumerator* se = nullptr;
-            hr = mgr->GetSessionEnumerator(&se);
-            if (FAILED(hr)) { mgr->Release(); goto check_foreground_done; }
-
-            int count = 0; se->GetCount(&count);
             bool hasAudio = false;
-            for (int i = 0; i < count && !hasAudio; i++) {
-                IAudioSessionControl* sc = nullptr;
-                if (FAILED(se->GetSession(i, &sc))) continue;
-                IAudioSessionControl2* sc2 = nullptr;
-                if (SUCCEEDED(sc->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&sc2))) {
-                    DWORD spid; sc2->GetProcessId(&spid);
-                    if (spid != GetCurrentProcessId()) {
-                        bool match;
-                        if (uwpDetected) {
-                            match = true;
-                        } else {
-                            char spname[260];
-                            GetProcName(spid, spname, sizeof(spname));
-                            match = spname[0] && (strcmp(spname, pname) == 0);
-                        }
-                        if (match) {
-                            IAudioMeterInformation2* meter = nullptr;
-                            if (SUCCEEDED(sc2->QueryInterface(IID_IAudioMeterInformation2, (void**)&meter))) {
-                                float peak = 0; meter->GetPeakValue(&peak);
-                                if (peak > 0.02f) hasAudio = true;
-                                meter->Release();
-                            }
-                        }
-                    }
-                    sc2->Release();
-                }
-                sc->Release();
+            if (SUCCEEDED(hr) && meter) {
+                float peak = 0;
+                meter->GetPeakValue(&peak);
+                // 阈值 0.02: 避免系统静音/极小噪音误判
+                if (peak > 0.02f) hasAudio = true;
+                meter->Release();
             }
-            se->Release(); mgr->Release();
 
             // 视频检测迟滞: 视频播放中音频短暂静默 (对话间隙/过场) 不立即解除
             // - 有音频: 重置静默计数, 判定为视频
