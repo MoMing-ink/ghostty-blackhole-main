@@ -19,6 +19,12 @@ qt_add_executable(BlackHole
     core/blackholecore.cpp
     core/blackholepreviewfbo.h
     core/blackholepreviewfbo.cpp
+    ../src/media_session.h
+    ../src/media_session.cpp
+    ../src/game_detection.h
+    ../src/game_detection.cpp
+    ../src/foreground_window.h
+    ../src/foreground_window.cpp
     app.rc
 )
 
@@ -48,7 +54,11 @@ set_target_properties(BlackHole PROPERTIES
 )
 
 target_link_libraries(BlackHole
-    PRIVATE Qt6::Quick Qt6::Widgets Qt6::OpenGL Qt6::QuickControls2 dwmapi ole32
+    PRIVATE Qt6::Quick Qt6::Widgets Qt6::OpenGL Qt6::QuickControls2 dwmapi ole32 runtimeobject
+)
+
+target_include_directories(BlackHole PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src
 )
 
 include(GNUInstallDirs)

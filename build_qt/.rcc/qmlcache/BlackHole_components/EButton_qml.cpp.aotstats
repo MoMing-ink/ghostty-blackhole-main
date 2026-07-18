@@ -8,7 +8,7 @@
                         {
                             "codegenResult": 2,
                             "column": 37,
-                            "durationMicroseconds": 0,
+                            "durationMicroseconds": 1000,
                             "functionName": "iconFontFamily",
                             "line": 12,
                             "message": "Cannot access value for name iconFont"
@@ -456,7 +456,7 @@
                         {
                             "codegenResult": 0,
                             "column": 41,
-                            "durationMicroseconds": 0,
+                            "durationMicroseconds": 1000,
                             "functionName": "verticalCenter",
                             "line": 142,
                             "message": ""

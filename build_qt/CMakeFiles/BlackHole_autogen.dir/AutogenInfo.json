@@ -1105,6 +1105,24 @@
 			"MU",
 			"TAC5DWH4SE/moc_systemtray.cpp",
 			null
+		],
+		[
+			"D:/Projects/ghostty-blackhole-main-main/src/foreground_window.h",
+			"MU",
+			"YSKWYXZ5NK/moc_foreground_window.cpp",
+			null
+		],
+		[
+			"D:/Projects/ghostty-blackhole-main-main/src/game_detection.h",
+			"MU",
+			"YSKWYXZ5NK/moc_game_detection.cpp",
+			null
+		],
+		[
+			"D:/Projects/ghostty-blackhole-main-main/src/media_session.h",
+			"MU",
+			"YSKWYXZ5NK/moc_media_session.cpp",
+			null
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -1141,6 +1159,7 @@
 	"MOC_INCLUDES" : 
 	[
 		"D:/Projects/ghostty-blackhole-main-main/Blakhole_UI",
+		"D:/Projects/ghostty-blackhole-main-main/src",
 		"C:/msys64/ucrt64/include/qt6/QtQml",
 		"C:/msys64/ucrt64/include/qt6",
 		"C:/msys64/ucrt64/include/qt6/QtCore",
@@ -1236,6 +1255,21 @@
 		],
 		[
 			"D:/Projects/ghostty-blackhole-main-main/Blakhole_UI/main.cpp",
+			"MU",
+			null
+		],
+		[
+			"D:/Projects/ghostty-blackhole-main-main/src/foreground_window.cpp",
+			"MU",
+			null
+		],
+		[
+			"D:/Projects/ghostty-blackhole-main-main/src/game_detection.cpp",
+			"MU",
+			null
+		],
+		[
+			"D:/Projects/ghostty-blackhole-main-main/src/media_session.cpp",
 			"MU",
 			null
 		]

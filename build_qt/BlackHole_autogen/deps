@@ -1308,4 +1308,10 @@ BlackHole_autogen/timestamp: \
 	D:/Projects/ghostty-blackhole-main-main/build_qt/CMakeFiles/4.3.4/CMakeCXXCompiler.cmake \
 	D:/Projects/ghostty-blackhole-main-main/build_qt/CMakeFiles/4.3.4/CMakeRCCompiler.cmake \
 	D:/Projects/ghostty-blackhole-main-main/build_qt/CMakeFiles/4.3.4/CMakeSystem.cmake \
+	D:/Projects/ghostty-blackhole-main-main/src/foreground_window.cpp \
+	D:/Projects/ghostty-blackhole-main-main/src/foreground_window.h \
+	D:/Projects/ghostty-blackhole-main-main/src/game_detection.cpp \
+	D:/Projects/ghostty-blackhole-main-main/src/game_detection.h \
+	D:/Projects/ghostty-blackhole-main-main/src/media_session.cpp \
+	D:/Projects/ghostty-blackhole-main-main/src/media_session.h \
 	C:/msys64/ucrt64/bin/cmake.exe

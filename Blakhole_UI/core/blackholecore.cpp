@@ -16,19 +16,21 @@
 #include <audiopolicy.h>
 #include <endpointvolume.h>
 #include <tlhelp32.h>
+#include "foreground_window.h"
+#include "game_detection.h"
+#include "media_session.h"
 
-// MinGW endpointvolume.h 仅前向声明 IAudioMeterInformation, 这里补完整接口定义.
-// IAudioMeterInformation 是端点设备接口 (从 IMMDevice::Activate 获取),
-// 不是 session 接口 — 不能从 IAudioSessionControl2::QueryInterface 获取.
-// IID: {C02216F6-8C67-4B5B-9D00-D008E73E0064}
-static const GUID IID_IAudioMeterInformationCpp = {
+// IAudioMeterInformation GUID (MinGW headers 仅前向声明, 这里补全)
+// 注意: 名字保留 IAudioMeterInformation2 与原生 blackhole.exe 一致, 实际是 v1 接口.
+// 该接口可从 IAudioSessionControl2::QueryInterface 获取 (用于查询特定 session 的峰值).
+static const GUID IID_IAudioMeterInformation2 = {
     0xC02216F6, 0x8C67, 0x4B5B, {0x9D, 0x00, 0xD0, 0x08, 0xE7, 0x3E, 0x00, 0x64}};
 
-struct IAudioMeterInformationCpp : public IUnknown {
-    virtual HRESULT STDMETHODCALLTYPE GetPeakValue(float* pfPeak) = 0;
-    virtual HRESULT STDMETHODCALLTYPE GetMeteringChannelCount(UINT* pnChannelCount) = 0;
-    virtual HRESULT STDMETHODCALLTYPE GetChannelsPeakValues(UINT u32ChannelCount, float* afPeakValues) = 0;
-    virtual HRESULT STDMETHODCALLTYPE QueryHardwareSupport(DWORD* pdwHardwareSupportMask) = 0;
+struct IAudioMeterInformation2 : IUnknown {
+    virtual HRESULT STDMETHODCALLTYPE GetPeakValue(float *pfPeak) = 0;
+    virtual HRESULT STDMETHODCALLTYPE GetMeteringChannelCount(UINT *pnChannelCount) = 0;
+    virtual HRESULT STDMETHODCALLTYPE GetChannelsPeakValues(UINT u32ChannelCount, float *afPeakValues) = 0;
+    virtual HRESULT STDMETHODCALLTYPE QueryHardwareSupport(DWORD *pdwHardwareSupportMask) = 0;
 };
 #endif
 
@@ -1011,15 +1013,10 @@ void BlackHoleCore::checkIdle()
     bool uwpDetected = false;
 
     if (fg) {
-        // 第1层: 排除黑洞自己的渲染窗口
-        {
-            LONG_PTR ex = GetWindowLongPtrW(fg, GWL_EXSTYLE);
-            if ((ex & (WS_EX_NOACTIVATE | WS_EX_TOPMOST | WS_EX_TRANSPARENT))
-                == (WS_EX_NOACTIVATE | WS_EX_TOPMOST | WS_EX_TRANSPARENT))
-                goto check_foreground_done;
-            wchar_t cls[64] = {};
-            if (GetClassNameW(fg, cls, 64) && wcscmp(cls, L"BlackHoleWGL") == 0)
-                goto check_foreground_done;
+        // 第1层: 排除桌面、系统外壳和黑洞自己的渲染窗口.
+        // 用原作者的 Foreground_Classify 替换手工分类, 覆盖更全面.
+        if (Foreground_Classify(fg) != ForegroundKind::Application) {
+            goto check_foreground_done;
         }
 
         // 第2层: D3D 独占全屏
@@ -1039,25 +1036,9 @@ void BlackHoleCore::checkIdle()
             }
         }
 
-        // 第3层: 无边框窗口覆盖全屏 (排除最大化窗口 + 排除桌面 Progman/WorkerW)
-        if (!watchingVideo) {
-            RECT r;
-            if (GetWindowRect(fg, &r)) {
-                int sw = GetSystemMetrics(SM_CXSCREEN), sh = GetSystemMetrics(SM_CYSCREEN);
-                int ww = r.right - r.left, wh = r.bottom - r.top;
-                LONG_PTR style = GetWindowLongPtrW(fg, GWL_STYLE);
-                if (ww >= sw && wh >= sh && !(style & WS_MAXIMIZE)) {
-                    // 排除桌面窗口: Progman (桌面) 和 WorkerW (桌面图标层)
-                    // 桌面天然铺满全屏但不是游戏/视频, 之前没排除会导致桌面置顶时屏保不触发
-                    wchar_t cls2[64] = {};
-                    if (GetClassNameW(fg, cls2, 64) &&
-                        (wcscmp(cls2, L"Progman") == 0 || wcscmp(cls2, L"WorkerW") == 0)) {
-                        // 桌面窗口, 不视为视频
-                    } else {
-                        watchingVideo = true;
-                    }
-                }
-            }
+        // 第3层: 无边框全屏窗口 (用原作者 Foreground_IsBorderlessFullscreen)
+        if (!watchingVideo && Foreground_IsBorderlessFullscreen(fg)) {
+            watchingVideo = true;
         }
 
         // 获取进程名 (使用 CreateToolhelp32Snapshot, 匹配原生)
@@ -1098,10 +1079,6 @@ void BlackHoleCore::checkIdle()
                           strstr(pname, "firefox") || strstr(pname, "opera") ||
                           strstr(pname, "brave"));
 
-        // 游戏启动器不视为视频播放 — 真正的全屏游戏会被第2层(D3D独占全屏)和第3层
-        // (无边框全屏窗口)捕获。启动器自身前台 + 用户空闲 = 应触发屏保。
-        // (原作者此处的 watchingVideo=true 会导致 Steam/Epic 前台时屏保永不触发)
-
         // 第5层: UWP 窗口标题检测
         bool isUWPVideo = false;
         if (strstr(pname, "applicationframehost")) {
@@ -1121,6 +1098,8 @@ void BlackHoleCore::checkIdle()
         }
 
         // 非视频播放器 AND 非浏览器 AND 非UWP视频 -> 不阻止
+        // (游戏在这里被排除: 游戏既不是专用播放器/浏览器/UWP视频,
+        //  也不会注册 SMTC 媒体会话, 因此不会被误判为视频)
         if (!isDedicatedVideoPlayer && !isBrowser && !isUWPVideo)
             goto check_foreground_done;
 
@@ -1140,49 +1119,27 @@ void BlackHoleCore::checkIdle()
             if (!hasVideoKeyword) goto check_foreground_done;
         }
 
-        // 第6层: 音频检测 (端点设备 IAudioMeterInformation)
-        // IAudioMeterInformation 是端点设备接口 (从 IMMDevice::Activate 获取),
-        // 不能从 IAudioSessionControl2 QueryInterface 获取.
-        // 由于第1-5层已过滤到只有视频播放器/浏览器/UWP视频才进入第6层,
-        // 这里只需检测系统是否有任何音频输出即可判断是否在播放视频.
+        // 第6层: SMTC 系统媒体会话检测 (主要判定)
+        // 查询 GlobalSystemMediaTransportControlsSessionManager 当前主媒体会话,
+        // 若 state==Playing 且媒体来源与前台进程匹配, 则视为在看视频.
+        // 这是原作者方案, 比 IAudioSessionEnumerator 枚举所有会话更准确:
+        // - 不会把游戏音频误判为视频 (游戏不注册 SMTC)
+        // - 不会把后台音乐误判为视频 (source 必须匹配前台进程)
+        // - 无需迟滞 (SMTC 在应用暂停时立即返回 Paused)
         {
-            CoInitializeEx(NULL, COINIT_MULTITHREADED);
-            IMMDeviceEnumerator* en = nullptr;
-            HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL,
-                                           __uuidof(IMMDeviceEnumerator), (void**)&en);
-            if (FAILED(hr)) goto check_foreground_done;
-
-            IMMDevice* dev = nullptr;
-            hr = en->GetDefaultAudioEndpoint(eRender, eConsole, &dev);
-            en->Release();
-            if (FAILED(hr)) goto check_foreground_done;
-
-            // 端点设备 Activate IAudioMeterInformation: 返回整个音频端点的峰值
-            IAudioMeterInformationCpp* meter = nullptr;
-            hr = dev->Activate(IID_IAudioMeterInformationCpp, CLSCTX_ALL, NULL, (void**)&meter);
-            dev->Release();
-            bool hasAudio = false;
-            if (SUCCEEDED(hr) && meter) {
-                float peak = 0;
-                meter->GetPeakValue(&peak);
-                // 阈值 0.02: 避免系统静音/极小噪音误判
-                if (peak > 0.02f) hasAudio = true;
-                meter->Release();
-            }
-
-            // 视频检测迟滞: 视频播放中音频短暂静默 (对话间隙/过场) 不立即解除
-            // - 有音频: 重置静默计数, 判定为视频
-            // - 无音频但上次在看视频: 累加静默时间, 5秒内仍视为视频
-            // - 其他: 非视频
-            if (hasAudio) {
-                m_videoSilentMs = 0;
+            const MediaSessionSnapshot mediaSession = MediaSession_QueryCurrent();
+            if (mediaSession.state == MediaPlaybackState::Playing &&
+                MediaSession_SourceMatchesProcess(mediaSession.sourceAppId, pname)) {
                 watchingVideo = true;
-            } else if (m_wasWatchingVideo) {
-                m_videoSilentMs += 1000;  // checkIdle 定时器1秒触发一次
-                watchingVideo = (m_videoSilentMs < 5000);
-            } else {
+                m_videoSilentMs = 0;
+            } else if (mediaSession.state == MediaPlaybackState::Paused ||
+                       mediaSession.state == MediaPlaybackState::Stopped ||
+                       mediaSession.state == MediaPlaybackState::Closed) {
+                // 应用主动暂停/停止 -> 立即解除视频状态, 不迟滞
                 watchingVideo = false;
+                m_videoSilentMs = 0;
             }
+            // 其他状态 (Unavailable/None/Opened/Changing): 保持原状, 不修改 watchingVideo
         }
     }
 
